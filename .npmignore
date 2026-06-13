@@ -1,0 +1,7 @@
+src/
+tsconfig.json
+tsup.config.ts
+node_modules/
+.git/
+.claude/
+*.tsbuildinfo

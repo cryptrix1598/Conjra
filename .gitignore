@@ -1,0 +1,150 @@
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+node_modules/
+.pnp
+.pnp.js
+
+# =============================================================================
+# BUILD OUTPUTS
+# =============================================================================
+# dist/ is intentionally tracked for npm package distribution ("files": ["dist"])
+# in package.json. This pattern prevents new/unintended dist files from being
+# auto-tracked while keeping already-tracked build artifacts visible to git.
+dist/
+*.tsbuildinfo
+*.tsbuildinfo.*
+
+# =============================================================================
+# NEXT.JS (site workspace)
+# =============================================================================
+# site/ is a submodule with its own .gitignore.
+# These root-level patterns serve as a safety net.
+site/.next/
+site/out/
+site/build/
+site/.vercel
+
+# =============================================================================
+# ENVIRONMENT FILES & SECRETS
+# =============================================================================
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+.env.test
+.env.example
+*.pem
+*.key
+*.crt
+
+# =============================================================================
+# LOGS & DEBUG FILES
+# =============================================================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# =============================================================================
+# OS-SPECIFIC FILES
+# =============================================================================
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# =============================================================================
+# PYTHON (Claude skill scripts)
+# =============================================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+*.egg
+
+# =============================================================================
+# TESTING & COVERAGE
+# =============================================================================
+coverage/
+.nyc_output/
+*.lcov
+
+# =============================================================================
+# EDITOR / IDE
+# =============================================================================
+# IntelliJ IDEA / JetBrains
+.idea/
+!.idea/.gitignore
+!.idea/misc.xml
+!.idea/modules.xml
+
+# VS Code
+.vscode/
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Vim / Neovim
+*.swp
+*.swo
+*.swn
+*.bak
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elisp-autofrly
+
+# =============================================================================
+# TURBOREPO
+# =============================================================================
+.turbo/
+
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
+tmp/
+temp/
+.cache/
+
+# =============================================================================
+# MISC
+# =============================================================================
+# Vercel
+.vercel
+
+# Sentry
+.sentryclirc
+
+# Yarn 2+ PnP (if ever adopted)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Dependency directories for other potential package managers
+bower_components/
+jspm_packages/
+vendor/

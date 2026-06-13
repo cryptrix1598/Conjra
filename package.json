@@ -1,0 +1,56 @@
+{
+  "name": "conjra",
+  "version": "1.0.0",
+  "description": "Native MCP skill package that gives Claude Code ability to provision and configure real cloud infrastructure without leaving the editor",
+  "main": "dist/mcp/server.js",
+  "bin": {
+    "conjra": "dist/cli/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "dev": "npm run dev --workspace=site",
+    "site:dev": "npm run dev --workspace=site",
+    "site:build": "npm run build --workspace=site",
+    "build:watch": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "infrastructure",
+    "supabase",
+    "railway",
+    "vercel",
+    "stripe",
+    "clerk",
+    "cloud",
+    "provisioning"
+  ],
+  "author": "Conjra",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "cosmiconfig": "^9.0.0",
+    "ora": "^8.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "serve": "^14.2.6",
+    "tsup": "^8.1.0",
+    "typescript": "^5.5.0"
+  },
+  "workspaces": [
+    "site"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
