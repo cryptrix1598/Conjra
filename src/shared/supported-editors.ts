@@ -1,0 +1,223 @@
+export interface SupportedEditor {
+  id: string;
+  name: string;
+  vendor: string;
+  configPath: string | { mac: string; windows: string; linux: string };
+  configFormat: "mcpServers" | "mcp" | "servers" | "toml" | "yaml";
+  installScope: "global" | "project" | "both";
+  notes?: string;
+  logoSlug: string;
+}
+
+export const SUPPORTED_EDITORS: SupportedEditor[] = [
+  {
+    id: "claude",
+    name: "Claude Code",
+    vendor: "Anthropic",
+    configPath: { mac: "~/.claude/settings.json", windows: "%USERPROFILE%\\.claude\\settings.json", linux: "~/.claude/settings.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Uses top-level mcpServers key. Project-level via .mcp.json in project root.",
+    logoSlug: "claude",
+  },
+  {
+    id: "cursor",
+    name: "Cursor",
+    vendor: "Anysphere",
+    configPath: ".cursor/mcp.json",
+    configFormat: "mcpServers",
+    installScope: "project",
+    notes: "Project-level only. Config file goes in project root .cursor/ directory.",
+    logoSlug: "cursor",
+  },
+  {
+    id: "windsurf",
+    name: "Windsurf",
+    vendor: "Codeium",
+    configPath: ".windsurf/mcp.json",
+    configFormat: "mcpServers",
+    installScope: "project",
+    notes: "Project-level only. Config file goes in project root .windsurf/ directory.",
+    logoSlug: "windsurf",
+  },
+  {
+    id: "antigravity",
+    name: "Antigravity CLI",
+    vendor: "Google",
+    configPath: { mac: "~/.gemini/config/mcp_config.json", windows: "%USERPROFILE%\\.gemini\\config\\mcp_config.json", linux: "~/.gemini/config/mcp_config.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Successor to Gemini CLI. Uses 'serverUrl' for remote servers instead of 'url'. Binary is 'agy'. Gemini CLI sunset June 18, 2026 for free/Pro/Ultra users.",
+    logoSlug: "antigravity",
+  },
+  {
+    id: "gemini",
+    name: "Gemini CLI",
+    vendor: "Google",
+    configPath: { mac: "~/.gemini/settings.json", windows: "%USERPROFILE%\\.gemini\\settings.json", linux: "~/.gemini/settings.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Sunsetting June 18, 2026 for free/Pro/Ultra users. Code Assist Standard/Enterprise orgs retain access. Also supports project-level .gemini/settings.json.",
+    logoSlug: "gemini",
+  },
+  {
+    id: "codex",
+    name: "Codex CLI",
+    vendor: "OpenAI",
+    configPath: { mac: "~/.codex/config.toml", windows: "%USERPROFILE%\\.codex\\config.toml", linux: "~/.codex/config.toml" },
+    configFormat: "toml",
+    installScope: "global",
+    notes: "Uses TOML format: [mcp_servers.conjra] section with command/args/env. Also supports codex --mcp-config ./mcp-settings.json with mcpServers JSON. Has codex mcp add CLI command.",
+    logoSlug: "codex",
+  },
+  {
+    id: "copilot",
+    name: "GitHub Copilot",
+    vendor: "GitHub / Microsoft",
+    configPath: { mac: "~/.copilot/mcp-config.json", windows: "%USERPROFILE%\\.copilot\\mcp-config.json", linux: "~/.copilot/mcp-config.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Global config at ~/.copilot/mcp-config.json. Also supports workspace .mcp.json and .vscode/mcp.json. VS Code uses 'servers' key, Copilot CLI uses 'mcpServers'.",
+    logoSlug: "copilot",
+  },
+  {
+    id: "cline",
+    name: "Cline",
+    vendor: "Cline (Open Source)",
+    configPath: { mac: "~/.cline/mcp.json", windows: "%APPDATA%\\Code\\User\\globalStorage\\saoudrizwan.claude-dev\\settings\\cline_mcp_settings.json", linux: "~/.cline/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "global",
+    notes: "VS Code extension. Config stored in VS Code global storage or ~/.cline/mcp.json. CLI wizard: cline mcp.",
+    logoSlug: "cline",
+  },
+  {
+    id: "aider",
+    name: "Aider",
+    vendor: "Aider AI",
+    configPath: { mac: "~/.aider.conf.yml", windows: "%USERPROFILE%\\.aider.conf.yml", linux: "~/.aider.conf.yml" },
+    configFormat: "yaml",
+    installScope: "both",
+    notes: "Uses YAML format with mcp-servers array (not mcpServers object). Also supports --mcp-server CLI flags. Both stdio and HTTP transports. Project-level .aider.conf.yml also supported.",
+    logoSlug: "aider",
+  },
+  {
+    id: "continue",
+    name: "Continue.dev",
+    vendor: "Continue",
+    configPath: { mac: "~/.continue/config.json", windows: "%USERPROFILE%\\.continue\\config.json", linux: "~/.continue/config.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Open source AI coding assistant for VS Code and JetBrains. Config in ~/.continue/config.json with mcpServers key.",
+    logoSlug: "continue",
+  },
+  {
+    id: "opencode",
+    name: "OpenCode",
+    vendor: "anomalyco",
+    configPath: { mac: "~/.config/opencode/opencode.json", windows: "%USERPROFILE%\\.config\\opencode\\opencode.json", linux: "~/.config/opencode/opencode.json" },
+    configFormat: "mcp",
+    installScope: "both",
+    notes: "Uses 'mcp' key instead of 'mcpServers'. Each server has 'type': 'local', 'command' is an array, 'enabled': true. Project-level opencode.json also supported. 172k+ GitHub stars.",
+    logoSlug: "opencode",
+  },
+  {
+    id: "amazonq",
+    name: "Amazon Q Developer",
+    vendor: "AWS",
+    configPath: { mac: "~/.aws/amazonq/mcp.json", windows: "%USERPROFILE%\\.aws\\amazonq\\mcp.json", linux: "~/.aws/amazonq/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "global",
+    notes: "Supports both local stdio and remote HTTP MCP servers. OAuth flow for remote servers. Use qchat mcp add to configure via CLI.",
+    logoSlug: "amazonq",
+  },
+  {
+    id: "kiro",
+    name: "Kiro",
+    vendor: "AWS",
+    configPath: { mac: "~/.kiro/settings/mcp.json", windows: "%USERPROFILE%\\.kiro\\settings\\mcp.json", linux: "~/.kiro/settings/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AWS's spec-driven AI IDE. Global config at ~/.kiro/settings/mcp.json, project-level at .kiro/settings/mcp.json. Uses standard mcpServers format.",
+    logoSlug: "kiro",
+  },
+  {
+    id: "warp",
+    name: "Warp 2.0",
+    vendor: "Warp",
+    configPath: { mac: "~/.warp/.mcp.json", windows: "%USERPROFILE%\\.warp\\.mcp.json", linux: "~/.warp/.mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AI-native terminal. Global: ~/.warp/.mcp.json, project: {repo_root}/.warp/.mcp.json. Has /agent-add-mcp built-in skill. Project-scoped servers require explicit approval.",
+    logoSlug: "warp",
+  },
+  {
+    id: "goose",
+    name: "Goose",
+    vendor: "Block / Linux Foundation (AAIF)",
+    configPath: { mac: "~/.config/goose/config.yaml", windows: "%USERPROFILE%\\.config\\goose\\config.yaml", linux: "~/.config/goose/config.yaml" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Open source AI agent (Apache 2.0). Runs as CLI + desktop. MCP-native architecture, 70+ extensions. Donated to Agentic AI Foundation under Linux Foundation.",
+    logoSlug: "goose",
+  },
+  {
+    id: "roocode",
+    name: "Roo Code",
+    vendor: "Roo Veterinary",
+    configPath: { mac: "~/.roo/mcp_settings.json", windows: "%USERPROFILE%\\.roo\\mcp_settings.json", linux: "~/.roo/mcp_settings.json" },
+    configFormat: "mcpServers",
+    installScope: "global",
+    notes: "VS Code extension, fork of Cline. Config at ~/.roo/mcp_settings.json using standard mcpServers format. Also supports VS Code settings.json under rooCode.mcpServers key.",
+    logoSlug: "roocode",
+  },
+  {
+    id: "qoder",
+    name: "Qoder",
+    vendor: "Alibaba Cloud",
+    configPath: { mac: "~/.qoder/mcp.json", windows: "%USERPROFILE%\\.qoder\\mcp.json", linux: "~/.qoder/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AI coding assistant by Alibaba Cloud. Supports both local stdio and remote MCP servers. Standard mcpServers JSON format.",
+    logoSlug: "qoder",
+  },
+  {
+    id: "trae",
+    name: "Trae",
+    vendor: "ByteDance",
+    configPath: ".trae/mcp.json",
+    configFormat: "mcpServers",
+    installScope: "project",
+    notes: "ByteDance's AI IDE. Project-level .trae/mcp.json (requires enabling Project MCP in beta settings). Also supports adding via Settings panel. Standard mcpServers format.",
+    logoSlug: "trae",
+  },
+  {
+    id: "droid",
+    name: "Droid",
+    vendor: "Factory",
+    configPath: { mac: "~/.factory/mcp.json", windows: "%USERPROFILE%\\.factory\\mcp.json", linux: "~/.factory/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AI coding agent by Factory. Config: .factory/mcp.json (project) or ~/.factory/mcp.json (global). CLI: droid mcp add. Supports http, sse, and stdio transports.",
+    logoSlug: "droid",
+  },
+  {
+    id: "kilocode",
+    name: "KiloCode",
+    vendor: "Kilo",
+    configPath: { mac: "~/.config/kilo/kilo.jsonc", windows: "%USERPROFILE%\\.config\\kilo\\kilo.jsonc", linux: "~/.config/kilo/kilo.jsonc" },
+    configFormat: "mcp",
+    installScope: "both",
+    notes: "VS Code extension and CLI. Uses 'mcp' key (not 'mcpServers'). 'command' is an array, 'type': 'local' or 'remote'. Config in kilo.jsonc. Supports OAuth for remote servers.",
+    logoSlug: "kilocode",
+  },
+];
+
+export function getEditorById(id: string): SupportedEditor | undefined {
+  return SUPPORTED_EDITORS.find((e) => e.id === id);
+}
+
+export function getNormalizedConfigPath(editor: SupportedEditor): string {
+  if (typeof editor.configPath === "string") return editor.configPath;
+  // Default to mac path for now; caller should use platform-specific
+  return editor.configPath.mac;
+}

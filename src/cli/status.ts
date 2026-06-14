@@ -6,63 +6,66 @@ import chalk from "chalk";
 import { logger } from "../utils/logger.js";
 import { listConnectedProviders, getKeychainCredentials, maskSecret } from "../auth/keychain.js";
 import { getProviderAuthConfig } from "../auth/providers.js";
+import { SUPPORTED_EDITORS } from "../shared/supported-editors.js";
+import type { SupportedEditor } from "../shared/supported-editors.js";
 
 const VERSION = "1.0.0";
 
-interface MCPServerEntry {
-  command: string;
-  args?: string[];
+function getNormalizedPath(editor: SupportedEditor): string {
+  if (typeof editor.configPath === "string") return join(process.cwd(), editor.configPath);
+  const platform = process.platform;
+  if (platform === "win32") return editor.configPath.windows.replace("%USERPROFILE%", homedir()).replace("%APPDATA%", process.env.APPDATA || join(homedir(), "AppData", "Roaming"));
+  if (platform === "darwin") return editor.configPath.mac;
+  return editor.configPath.linux;
 }
 
-interface ClaudeSettings {
-  mcpServers?: Record<string, MCPServerEntry>;
-  [key: string]: unknown;
-}
+function checkEditorRegistration(editor: SupportedEditor): { registered: boolean; location: string | null } {
+  const configPath = getNormalizedPath(editor);
 
-function checkMCPServerRegistration(): { registered: boolean; location: string | null } {
-  // Check Claude settings
-  const claudeSettingsPath = join(homedir(), ".claude", "settings.json");
-  if (existsSync(claudeSettingsPath)) {
-    try {
-      const raw = readFileSync(claudeSettingsPath, { encoding: "utf8" });
-      const settings = JSON.parse(raw) as ClaudeSettings;
-      if (settings.mcpServers?.["conjra"]) {
-        return { registered: true, location: claudeSettingsPath };
-      }
-    } catch {
-      // Ignore parse errors
-    }
+  if (!existsSync(configPath)) {
+    return { registered: false, location: null };
   }
 
-  // Check Cursor
-  const cursorConfigPath = join(process.cwd(), ".cursor", "mcp.json");
-  if (existsSync(cursorConfigPath)) {
-    try {
-      const raw = readFileSync(cursorConfigPath, { encoding: "utf8" });
-      const config = JSON.parse(raw) as Record<string, MCPServerEntry>;
-      if (config["conjra"]) {
-        return { registered: true, location: cursorConfigPath };
-      }
-    } catch {
-      // Ignore parse errors
-    }
-  }
+  try {
+    const raw = readFileSync(configPath, { encoding: "utf8" });
 
-  // Check Windsurf
-  const windsurfConfigPath = join(process.cwd(), ".windsurf", "mcp.json");
-  if (existsSync(windsurfConfigPath)) {
-    try {
-      const raw = readFileSync(windsurfConfigPath, { encoding: "utf8" });
-      const config = JSON.parse(raw) as Record<string, MCPServerEntry>;
-      if (config["conjra"]) {
-        return { registered: true, location: windsurfConfigPath };
-      }
-    } catch {
-      // Ignore parse errors
+    if (!raw.trim()) {
+      return { registered: false, location: null };
     }
-  }
 
-  return { registered: false, location: null };
+    if (editor.configFormat === "toml") {
+      const hasConjra = raw.includes('[mcp_servers.conjra]');
+      return { registered: hasConjra, location: hasConjra ? configPath : null };
+    }
+
+    if (editor.configFormat === "yaml") {
+      const hasConjra = raw.includes("conjra");
+      return { registered: hasConjra, location: hasConjra ? configPath : null };
+    }
+
+    const config = JSON.parse(raw);
+
+    if (editor.configFormat === "mcp") {
+      const mcpSection = config.mcp as Record<string, unknown> | undefined;
+      if (mcpSection && typeof mcpSection === "object" && "conjra" in mcpSection) {
+        return { registered: true, location: configPath };
+      }
+    }
+
+    const mcpServers = config.mcpServers as Record<string, unknown> | undefined;
+    if (mcpServers && typeof mcpServers === "object" && "conjra" in mcpServers) {
+      return { registered: true, location: configPath };
+    }
+
+    const servers = config.servers as Record<string, unknown> | undefined;
+    if (servers && typeof servers === "object" && "conjra" in servers) {
+      return { registered: true, location: configPath };
+    }
+
+    return { registered: false, location: null };
+  } catch {
+    return { registered: false, location: null };
+  }
 }
 
 export function registerStatusCommand(program: Command): void {
@@ -101,13 +104,36 @@ export function registerStatusCommand(program: Command): void {
 
       console.log("");
 
-      // MCP server registration
-      const mcpStatus = checkMCPServerRegistration();
-      if (mcpStatus.registered && mcpStatus.location) {
-        logger.info(`MCP server: ${chalk.green("registered")} in ${chalk.cyan(mcpStatus.location)}`);
-      } else {
-        logger.warn("MCP server: not registered");
-        logger.dim(`Run ${chalk.cyan("conjra init --ai claude")} to register.`);
+      // MCP server registration across all editors
+      logger.info("MCP server registration status:");
+      const results = SUPPORTED_EDITORS.map((editor) => ({
+        editor,
+        ...checkEditorRegistration(editor),
+      }));
+
+      const registered = results.filter((r) => r.registered);
+      const unregistered = results.filter((r) => !r.registered);
+
+      if (registered.length > 0) {
+        for (const r of registered) {
+          console.log(`  ${chalk.green("✔")} ${chalk.bold(r.editor.name)}  ${chalk.dim(r.location)}`);
+        }
+      }
+
+      if (unregistered.length > 0) {
+        if (registered.length > 0) console.log("");
+        for (const r of unregistered) {
+          console.log(`  ${chalk.dim("○")} ${chalk.dim(r.editor.name)}  ${chalk.dim("not registered")}`);
+        }
+      }
+
+      console.log("");
+      if (registered.length > 0) {
+        logger.success(`MCP server registered in ${registered.length}/${results.length} editors`);
+      }
+      if (unregistered.length > 0) {
+        logger.dim(`Run ${chalk.cyan("conjra init --ai <editor>")} to register for unconfigured editors.`);
+        logger.dim(`Or run ${chalk.cyan("conjra init --ai all")} to configure all editors.`);
       }
     });
 }

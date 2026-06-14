@@ -54,8 +54,214 @@ async function withSpinner(text, fn, successText) {
   }
 }
 
+// src/shared/supported-editors.ts
+var SUPPORTED_EDITORS = [
+  {
+    id: "claude",
+    name: "Claude Code",
+    vendor: "Anthropic",
+    configPath: { mac: "~/.claude/settings.json", windows: "%USERPROFILE%\\.claude\\settings.json", linux: "~/.claude/settings.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Uses top-level mcpServers key. Project-level via .mcp.json in project root.",
+    logoSlug: "claude"
+  },
+  {
+    id: "cursor",
+    name: "Cursor",
+    vendor: "Anysphere",
+    configPath: ".cursor/mcp.json",
+    configFormat: "mcpServers",
+    installScope: "project",
+    notes: "Project-level only. Config file goes in project root .cursor/ directory.",
+    logoSlug: "cursor"
+  },
+  {
+    id: "windsurf",
+    name: "Windsurf",
+    vendor: "Codeium",
+    configPath: ".windsurf/mcp.json",
+    configFormat: "mcpServers",
+    installScope: "project",
+    notes: "Project-level only. Config file goes in project root .windsurf/ directory.",
+    logoSlug: "windsurf"
+  },
+  {
+    id: "antigravity",
+    name: "Antigravity CLI",
+    vendor: "Google",
+    configPath: { mac: "~/.gemini/config/mcp_config.json", windows: "%USERPROFILE%\\.gemini\\config\\mcp_config.json", linux: "~/.gemini/config/mcp_config.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Successor to Gemini CLI. Uses 'serverUrl' for remote servers instead of 'url'. Binary is 'agy'. Gemini CLI sunset June 18, 2026 for free/Pro/Ultra users.",
+    logoSlug: "antigravity"
+  },
+  {
+    id: "gemini",
+    name: "Gemini CLI",
+    vendor: "Google",
+    configPath: { mac: "~/.gemini/settings.json", windows: "%USERPROFILE%\\.gemini\\settings.json", linux: "~/.gemini/settings.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Sunsetting June 18, 2026 for free/Pro/Ultra users. Code Assist Standard/Enterprise orgs retain access. Also supports project-level .gemini/settings.json.",
+    logoSlug: "gemini"
+  },
+  {
+    id: "codex",
+    name: "Codex CLI",
+    vendor: "OpenAI",
+    configPath: { mac: "~/.codex/config.toml", windows: "%USERPROFILE%\\.codex\\config.toml", linux: "~/.codex/config.toml" },
+    configFormat: "toml",
+    installScope: "global",
+    notes: "Uses TOML format: [mcp_servers.conjra] section with command/args/env. Also supports codex --mcp-config ./mcp-settings.json with mcpServers JSON. Has codex mcp add CLI command.",
+    logoSlug: "codex"
+  },
+  {
+    id: "copilot",
+    name: "GitHub Copilot",
+    vendor: "GitHub / Microsoft",
+    configPath: { mac: "~/.copilot/mcp-config.json", windows: "%USERPROFILE%\\.copilot\\mcp-config.json", linux: "~/.copilot/mcp-config.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Global config at ~/.copilot/mcp-config.json. Also supports workspace .mcp.json and .vscode/mcp.json. VS Code uses 'servers' key, Copilot CLI uses 'mcpServers'.",
+    logoSlug: "copilot"
+  },
+  {
+    id: "cline",
+    name: "Cline",
+    vendor: "Cline (Open Source)",
+    configPath: { mac: "~/.cline/mcp.json", windows: "%APPDATA%\\Code\\User\\globalStorage\\saoudrizwan.claude-dev\\settings\\cline_mcp_settings.json", linux: "~/.cline/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "global",
+    notes: "VS Code extension. Config stored in VS Code global storage or ~/.cline/mcp.json. CLI wizard: cline mcp.",
+    logoSlug: "cline"
+  },
+  {
+    id: "aider",
+    name: "Aider",
+    vendor: "Aider AI",
+    configPath: { mac: "~/.aider.conf.yml", windows: "%USERPROFILE%\\.aider.conf.yml", linux: "~/.aider.conf.yml" },
+    configFormat: "yaml",
+    installScope: "both",
+    notes: "Uses YAML format with mcp-servers array (not mcpServers object). Also supports --mcp-server CLI flags. Both stdio and HTTP transports. Project-level .aider.conf.yml also supported.",
+    logoSlug: "aider"
+  },
+  {
+    id: "continue",
+    name: "Continue.dev",
+    vendor: "Continue",
+    configPath: { mac: "~/.continue/config.json", windows: "%USERPROFILE%\\.continue\\config.json", linux: "~/.continue/config.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Open source AI coding assistant for VS Code and JetBrains. Config in ~/.continue/config.json with mcpServers key.",
+    logoSlug: "continue"
+  },
+  {
+    id: "opencode",
+    name: "OpenCode",
+    vendor: "anomalyco",
+    configPath: { mac: "~/.config/opencode/opencode.json", windows: "%USERPROFILE%\\.config\\opencode\\opencode.json", linux: "~/.config/opencode/opencode.json" },
+    configFormat: "mcp",
+    installScope: "both",
+    notes: "Uses 'mcp' key instead of 'mcpServers'. Each server has 'type': 'local', 'command' is an array, 'enabled': true. Project-level opencode.json also supported. 172k+ GitHub stars.",
+    logoSlug: "opencode"
+  },
+  {
+    id: "amazonq",
+    name: "Amazon Q Developer",
+    vendor: "AWS",
+    configPath: { mac: "~/.aws/amazonq/mcp.json", windows: "%USERPROFILE%\\.aws\\amazonq\\mcp.json", linux: "~/.aws/amazonq/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "global",
+    notes: "Supports both local stdio and remote HTTP MCP servers. OAuth flow for remote servers. Use qchat mcp add to configure via CLI.",
+    logoSlug: "amazonq"
+  },
+  {
+    id: "kiro",
+    name: "Kiro",
+    vendor: "AWS",
+    configPath: { mac: "~/.kiro/settings/mcp.json", windows: "%USERPROFILE%\\.kiro\\settings\\mcp.json", linux: "~/.kiro/settings/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AWS's spec-driven AI IDE. Global config at ~/.kiro/settings/mcp.json, project-level at .kiro/settings/mcp.json. Uses standard mcpServers format.",
+    logoSlug: "kiro"
+  },
+  {
+    id: "warp",
+    name: "Warp 2.0",
+    vendor: "Warp",
+    configPath: { mac: "~/.warp/.mcp.json", windows: "%USERPROFILE%\\.warp\\.mcp.json", linux: "~/.warp/.mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AI-native terminal. Global: ~/.warp/.mcp.json, project: {repo_root}/.warp/.mcp.json. Has /agent-add-mcp built-in skill. Project-scoped servers require explicit approval.",
+    logoSlug: "warp"
+  },
+  {
+    id: "goose",
+    name: "Goose",
+    vendor: "Block / Linux Foundation (AAIF)",
+    configPath: { mac: "~/.config/goose/config.yaml", windows: "%USERPROFILE%\\.config\\goose\\config.yaml", linux: "~/.config/goose/config.yaml" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "Open source AI agent (Apache 2.0). Runs as CLI + desktop. MCP-native architecture, 70+ extensions. Donated to Agentic AI Foundation under Linux Foundation.",
+    logoSlug: "goose"
+  },
+  {
+    id: "roocode",
+    name: "Roo Code",
+    vendor: "Roo Veterinary",
+    configPath: { mac: "~/.roo/mcp_settings.json", windows: "%USERPROFILE%\\.roo\\mcp_settings.json", linux: "~/.roo/mcp_settings.json" },
+    configFormat: "mcpServers",
+    installScope: "global",
+    notes: "VS Code extension, fork of Cline. Config at ~/.roo/mcp_settings.json using standard mcpServers format. Also supports VS Code settings.json under rooCode.mcpServers key.",
+    logoSlug: "roocode"
+  },
+  {
+    id: "qoder",
+    name: "Qoder",
+    vendor: "Alibaba Cloud",
+    configPath: { mac: "~/.qoder/mcp.json", windows: "%USERPROFILE%\\.qoder\\mcp.json", linux: "~/.qoder/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AI coding assistant by Alibaba Cloud. Supports both local stdio and remote MCP servers. Standard mcpServers JSON format.",
+    logoSlug: "qoder"
+  },
+  {
+    id: "trae",
+    name: "Trae",
+    vendor: "ByteDance",
+    configPath: ".trae/mcp.json",
+    configFormat: "mcpServers",
+    installScope: "project",
+    notes: "ByteDance's AI IDE. Project-level .trae/mcp.json (requires enabling Project MCP in beta settings). Also supports adding via Settings panel. Standard mcpServers format.",
+    logoSlug: "trae"
+  },
+  {
+    id: "droid",
+    name: "Droid",
+    vendor: "Factory",
+    configPath: { mac: "~/.factory/mcp.json", windows: "%USERPROFILE%\\.factory\\mcp.json", linux: "~/.factory/mcp.json" },
+    configFormat: "mcpServers",
+    installScope: "both",
+    notes: "AI coding agent by Factory. Config: .factory/mcp.json (project) or ~/.factory/mcp.json (global). CLI: droid mcp add. Supports http, sse, and stdio transports.",
+    logoSlug: "droid"
+  },
+  {
+    id: "kilocode",
+    name: "KiloCode",
+    vendor: "Kilo",
+    configPath: { mac: "~/.config/kilo/kilo.jsonc", windows: "%USERPROFILE%\\.config\\kilo\\kilo.jsonc", linux: "~/.config/kilo/kilo.jsonc" },
+    configFormat: "mcp",
+    installScope: "both",
+    notes: "VS Code extension and CLI. Uses 'mcp' key (not 'mcpServers'). 'command' is an array, 'type': 'local' or 'remote'. Config in kilo.jsonc. Supports OAuth for remote servers.",
+    logoSlug: "kilocode"
+  }
+];
+function getEditorById(id) {
+  return SUPPORTED_EDITORS.find((e) => e.id === id);
+}
+
 // src/cli/init.ts
-var VALID_EDITORS = ["claude", "cursor", "windsurf"];
 function getServerConfig() {
   const serverPath = join(process.cwd(), "dist", "mcp", "server.js");
   return {
@@ -63,105 +269,229 @@ function getServerConfig() {
     args: [serverPath]
   };
 }
-function registerClaude(serverConfig) {
-  const settingsPath = join(homedir(), ".claude", "settings.json");
-  let settings = {};
-  if (existsSync(settingsPath)) {
-    try {
-      const raw = readFileSync(settingsPath, { encoding: "utf8" });
-      settings = JSON.parse(raw);
-    } catch {
-      logger.warn("Could not parse existing Claude settings, creating fresh config");
-    }
-  }
-  if (!settings.mcpServers) {
-    settings.mcpServers = {};
-  }
-  settings.mcpServers["conjra"] = serverConfig;
-  const settingsDir = join(homedir(), ".claude");
-  if (!existsSync(settingsDir)) {
-    mkdirSync(settingsDir, { recursive: true });
-  }
-  writeFileSync(settingsPath, JSON.stringify(settings, null, 2), { encoding: "utf8" });
-  logger.success(`Registered conjra MCP server in ${chalk2.cyan(settingsPath)}`);
+function getNormalizedPath(editor) {
+  if (typeof editor.configPath === "string") return join(process.cwd(), editor.configPath);
+  const platform = process.platform;
+  if (platform === "win32") return editor.configPath.windows.replace("%USERPROFILE%", homedir()).replace("%APPDATA%", process.env.APPDATA || join(homedir(), "AppData", "Roaming"));
+  if (platform === "darwin") return editor.configPath.mac;
+  return editor.configPath.linux;
 }
-function registerCursor(serverConfig) {
-  const configPath = join(process.cwd(), ".cursor", "mcp.json");
-  let config = {};
+function writeMcpServersJson(configPath, serverConfig) {
+  let config = {
+    mcpServers: {}
+  };
   if (existsSync(configPath)) {
     try {
       const raw = readFileSync(configPath, { encoding: "utf8" });
       config = JSON.parse(raw);
     } catch {
-      logger.warn("Could not parse existing Cursor MCP config, creating fresh config");
+      logger.warn(`Could not parse existing config, creating fresh: ${configPath}`);
     }
   }
-  config["conjra"] = serverConfig;
-  const configDir = join(process.cwd(), ".cursor");
-  if (!existsSync(configDir)) {
-    mkdirSync(configDir, { recursive: true });
+  if (!config.mcpServers || typeof config.mcpServers !== "object") {
+    config.mcpServers = {};
+  }
+  config.mcpServers["conjra"] = serverConfig;
+  const dir = configPath.replace(/[/\\][^/\\]+$/, "");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
   }
   writeFileSync(configPath, JSON.stringify(config, null, 2), { encoding: "utf8" });
   logger.success(`Registered conjra MCP server in ${chalk2.cyan(configPath)}`);
 }
-function registerWindsurf(serverConfig) {
-  const configPath = join(process.cwd(), ".windsurf", "mcp.json");
-  let config = {};
+function writeMcpKeyFormat(configPath, serverConfig) {
+  let config = {
+    mcp: {}
+  };
   if (existsSync(configPath)) {
     try {
       const raw = readFileSync(configPath, { encoding: "utf8" });
       config = JSON.parse(raw);
     } catch {
-      logger.warn("Could not parse existing Windsurf MCP config, creating fresh config");
+      logger.warn(`Could not parse existing config, creating fresh: ${configPath}`);
     }
   }
-  config["conjra"] = serverConfig;
-  const configDir = join(process.cwd(), ".windsurf");
-  if (!existsSync(configDir)) {
-    mkdirSync(configDir, { recursive: true });
+  if (!config.mcp || typeof config.mcp !== "object") {
+    config.mcp = {};
+  }
+  config.mcp["conjra"] = {
+    type: "local",
+    command: [serverConfig.command, ...serverConfig.args],
+    enabled: true
+  };
+  const dir = configPath.replace(/[/\\][^/\\]+$/, "");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
   }
   writeFileSync(configPath, JSON.stringify(config, null, 2), { encoding: "utf8" });
   logger.success(`Registered conjra MCP server in ${chalk2.cyan(configPath)}`);
+}
+function writeTomlFormat(configPath, serverConfig) {
+  const tomlContent = `[mcp_servers.conjra]
+command = "${serverConfig.command}"
+args = [${serverConfig.args.map((a) => `"${a.replace(/\\/g, "\\\\")}"`).join(", ")}]
+`;
+  const dir = configPath.replace(/[/\\][^/\\]+$/, "");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  let existing = "";
+  if (existsSync(configPath)) {
+    existing = readFileSync(configPath, { encoding: "utf8" });
+  }
+  if (existing.includes("[mcp_servers.conjra]")) {
+    existing = existing.replace(/\[mcp_servers\.conjra\][^\[]*/s, tomlContent);
+  } else if (existing.trim()) {
+    existing = existing.trimEnd() + "\n\n" + tomlContent;
+  } else {
+    existing = tomlContent;
+  }
+  writeFileSync(configPath, existing, { encoding: "utf8" });
+  logger.success(`Registered conjra MCP server in ${chalk2.cyan(configPath)}`);
+}
+function writeYamlFormat(configPath, serverConfig) {
+  const yamlContent = `mcp-servers:
+  - name: conjra
+    transport: stdio
+    command: ${serverConfig.command}
+    args: [${serverConfig.args.map((a) => `"${a.replace(/\\/g, "\\\\")}"`).join(", ")}]
+`;
+  const dir = configPath.replace(/[/\\][^/\\]+$/, "");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  let existing = "";
+  if (existsSync(configPath)) {
+    existing = readFileSync(configPath, { encoding: "utf8" });
+  }
+  if (existing.includes("conjra")) {
+    existing = existing + "\n" + yamlContent;
+  } else if (existing.trim()) {
+    existing = existing.trimEnd() + "\n" + yamlContent;
+  } else {
+    existing = yamlContent;
+  }
+  writeFileSync(configPath, existing, { encoding: "utf8" });
+  logger.success(`Registered conjra MCP server in ${chalk2.cyan(configPath)}`);
+}
+var formatWriters = {
+  mcpServers: writeMcpServersJson,
+  mcp: writeMcpKeyFormat,
+  toml: writeTomlFormat,
+  yaml: writeYamlFormat
+};
+function registerEditor(editor, serverConfig) {
+  const configPath = getNormalizedPath(editor);
+  const writer = formatWriters[editor.configFormat];
+  if (!writer) {
+    logger.warn(`No config writer for ${editor.name} (format: ${editor.configFormat})`);
+    return;
+  }
+  writer(configPath, serverConfig);
+}
+function detectInstalledEditors() {
+  const detected = [];
+  for (const editor of SUPPORTED_EDITORS) {
+    const configPath = getNormalizedPath(editor);
+    if (existsSync(configPath)) {
+      detected.push(editor);
+    }
+  }
+  return detected;
 }
 function registerInitCommand(program2) {
-  program2.command("init").description("Initialize conjra for your AI editor").requiredOption("--ai <editor>", `AI editor to configure (${VALID_EDITORS.join(", ")})`).action(async (opts) => {
-    const editor = opts.ai.toLowerCase();
-    if (!VALID_EDITORS.includes(editor)) {
-      logger.error(`Invalid AI editor: ${opts.ai}. Must be one of: ${VALID_EDITORS.join(", ")}`);
-      process.exit(1);
-    }
-    logger.heading("Initializing Conjra");
+  program2.command("init").description("Initialize conjra for your AI editor").option("--ai <editor>", `AI editor to configure (${SUPPORTED_EDITORS.map((e) => e.id).join(" | ")} | all)`).action(async (opts) => {
     const serverConfig = getServerConfig();
-    try {
-      await withSpinner(
-        `Registering conjra for ${editor}...`,
-        async () => {
-          switch (editor) {
-            case "claude":
-              registerClaude(serverConfig);
-              break;
-            case "cursor":
-              registerCursor(serverConfig);
-              break;
-            case "windsurf":
-              registerWindsurf(serverConfig);
-              break;
+    if (opts.ai) {
+      const editorValue = opts.ai.toLowerCase();
+      if (editorValue === "all") {
+        logger.heading(`Configuring conjra for all ${SUPPORTED_EDITORS.length} editors`);
+        const results = [];
+        for (const editor2 of SUPPORTED_EDITORS) {
+          try {
+            await withSpinner(
+              `Configuring ${editor2.name}...`,
+              async () => registerEditor(editor2, serverConfig),
+              `Configured ${editor2.name}`
+            );
+            results.push({ editor: editor2.name, ok: true });
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            logger.warn(`Failed to configure ${editor2.name}: ${msg}`);
+            results.push({ editor: editor2.name, ok: false });
           }
-        },
-        `Registered for ${editor}`
-      );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      logger.error(`Failed to register: ${message}`);
-      process.exit(1);
+        }
+        console.log("");
+        const okCount = results.filter((r) => r.ok).length;
+        logger.success(`Configured ${okCount}/${results.length} editors`);
+        console.log("");
+        logger.bullet("1.", `Add a provider: ${chalk2.cyan("conjra add supabase")}`);
+        logger.bullet("2.", `Check status:   ${chalk2.cyan("conjra status")}`);
+        logger.bullet("3.", `Start coding!   Ask your AI to use conjra tools.`);
+        console.log("");
+        return;
+      }
+      const editor = getEditorById(editorValue);
+      if (!editor) {
+        logger.error(
+          `Invalid AI editor: "${opts.ai}". Must be one of: ${SUPPORTED_EDITORS.map((e) => e.id).join(", ")}, "all"`
+        );
+        process.exit(1);
+      }
+      logger.heading(`Initializing Conjra for ${editor.name}`);
+      try {
+        await withSpinner(
+          `Registering conjra for ${editor.name}...`,
+          async () => registerEditor(editor, serverConfig),
+          `Registered for ${editor.name}`
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        logger.error(`Failed to register: ${message}`);
+        process.exit(1);
+      }
+      console.log("");
+      logger.success("Conjra is ready! Next steps:");
+      console.log("");
+      logger.bullet("1.", `Add a provider: ${chalk2.cyan("conjra add supabase")}`);
+      logger.bullet("2.", `Check status:   ${chalk2.cyan("conjra status")}`);
+      logger.bullet("3.", `Start coding!   Ask your AI to use conjra tools.`);
+      console.log("");
+    } else {
+      logger.heading("Detecting installed editors");
+      const detected = detectInstalledEditors();
+      if (detected.length === 0) {
+        logger.warn("No supported AI editor config files found on this machine.");
+        logger.dim(`Run ${chalk2.cyan("conjra init --ai <editor>")} to configure a specific editor.`);
+        logger.dim(`Or run ${chalk2.cyan("conjra init --ai all")} to configure all editors.`);
+        return;
+      }
+      logger.info(`Detected ${detected.length} editor(s) with existing config files:`);
+      for (const editor of detected) {
+        console.log(`  ${chalk2.green("\u2714")} ${chalk2.bold(editor.name)}  ${chalk2.dim(getNormalizedPath(editor))}`);
+      }
+      console.log("");
+      logger.info("Configuring detected editors...");
+      for (const editor of detected) {
+        try {
+          await withSpinner(
+            `Configuring ${editor.name}...`,
+            async () => registerEditor(editor, serverConfig),
+            `Configured ${editor.name}`
+          );
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          logger.warn(`Failed to configure ${editor.name}: ${msg}`);
+        }
+      }
+      console.log("");
+      logger.success("Conjra is ready! Next steps:");
+      console.log("");
+      logger.bullet("1.", `Add a provider: ${chalk2.cyan("conjra add supabase")}`);
+      logger.bullet("2.", `Check status:   ${chalk2.cyan("conjra status")}`);
+      logger.bullet("3.", `Start coding!   Ask your AI to use conjra tools.`);
+      console.log("");
     }
-    console.log("");
-    logger.success("Conjra is ready! Next steps:");
-    console.log("");
-    logger.bullet("1.", `Add a provider: ${chalk2.cyan("conjra add supabase")}`);
-    logger.bullet("2.", `Check status:   ${chalk2.cyan("conjra status")}`);
-    logger.bullet("3.", `Start coding!   Ask Claude to use conjra tools.`);
-    console.log("");
   });
 }
 
@@ -548,41 +878,50 @@ import { join as join3 } from "path";
 import { homedir as homedir3 } from "os";
 import chalk5 from "chalk";
 var VERSION = "1.0.0";
-function checkMCPServerRegistration() {
-  const claudeSettingsPath = join3(homedir3(), ".claude", "settings.json");
-  if (existsSync3(claudeSettingsPath)) {
-    try {
-      const raw = readFileSync3(claudeSettingsPath, { encoding: "utf8" });
-      const settings = JSON.parse(raw);
-      if (settings.mcpServers?.["conjra"]) {
-        return { registered: true, location: claudeSettingsPath };
-      }
-    } catch {
-    }
+function getNormalizedPath2(editor) {
+  if (typeof editor.configPath === "string") return join3(process.cwd(), editor.configPath);
+  const platform = process.platform;
+  if (platform === "win32") return editor.configPath.windows.replace("%USERPROFILE%", homedir3()).replace("%APPDATA%", process.env.APPDATA || join3(homedir3(), "AppData", "Roaming"));
+  if (platform === "darwin") return editor.configPath.mac;
+  return editor.configPath.linux;
+}
+function checkEditorRegistration(editor) {
+  const configPath = getNormalizedPath2(editor);
+  if (!existsSync3(configPath)) {
+    return { registered: false, location: null };
   }
-  const cursorConfigPath = join3(process.cwd(), ".cursor", "mcp.json");
-  if (existsSync3(cursorConfigPath)) {
-    try {
-      const raw = readFileSync3(cursorConfigPath, { encoding: "utf8" });
-      const config = JSON.parse(raw);
-      if (config["conjra"]) {
-        return { registered: true, location: cursorConfigPath };
-      }
-    } catch {
+  try {
+    const raw = readFileSync3(configPath, { encoding: "utf8" });
+    if (!raw.trim()) {
+      return { registered: false, location: null };
     }
-  }
-  const windsurfConfigPath = join3(process.cwd(), ".windsurf", "mcp.json");
-  if (existsSync3(windsurfConfigPath)) {
-    try {
-      const raw = readFileSync3(windsurfConfigPath, { encoding: "utf8" });
-      const config = JSON.parse(raw);
-      if (config["conjra"]) {
-        return { registered: true, location: windsurfConfigPath };
-      }
-    } catch {
+    if (editor.configFormat === "toml") {
+      const hasConjra = raw.includes("[mcp_servers.conjra]");
+      return { registered: hasConjra, location: hasConjra ? configPath : null };
     }
+    if (editor.configFormat === "yaml") {
+      const hasConjra = raw.includes("conjra");
+      return { registered: hasConjra, location: hasConjra ? configPath : null };
+    }
+    const config = JSON.parse(raw);
+    if (editor.configFormat === "mcp") {
+      const mcpSection = config.mcp;
+      if (mcpSection && typeof mcpSection === "object" && "conjra" in mcpSection) {
+        return { registered: true, location: configPath };
+      }
+    }
+    const mcpServers = config.mcpServers;
+    if (mcpServers && typeof mcpServers === "object" && "conjra" in mcpServers) {
+      return { registered: true, location: configPath };
+    }
+    const servers = config.servers;
+    if (servers && typeof servers === "object" && "conjra" in servers) {
+      return { registered: true, location: configPath };
+    }
+    return { registered: false, location: null };
+  } catch {
+    return { registered: false, location: null };
   }
-  return { registered: false, location: null };
 }
 function registerStatusCommand(program2) {
   program2.command("status").description("Show conjra connection status").action(async () => {
@@ -608,12 +947,31 @@ function registerStatusCommand(program2) {
       }
     }
     console.log("");
-    const mcpStatus = checkMCPServerRegistration();
-    if (mcpStatus.registered && mcpStatus.location) {
-      logger.info(`MCP server: ${chalk5.green("registered")} in ${chalk5.cyan(mcpStatus.location)}`);
-    } else {
-      logger.warn("MCP server: not registered");
-      logger.dim(`Run ${chalk5.cyan("conjra init --ai claude")} to register.`);
+    logger.info("MCP server registration status:");
+    const results = SUPPORTED_EDITORS.map((editor) => ({
+      editor,
+      ...checkEditorRegistration(editor)
+    }));
+    const registered = results.filter((r) => r.registered);
+    const unregistered = results.filter((r) => !r.registered);
+    if (registered.length > 0) {
+      for (const r of registered) {
+        console.log(`  ${chalk5.green("\u2714")} ${chalk5.bold(r.editor.name)}  ${chalk5.dim(r.location)}`);
+      }
+    }
+    if (unregistered.length > 0) {
+      if (registered.length > 0) console.log("");
+      for (const r of unregistered) {
+        console.log(`  ${chalk5.dim("\u25CB")} ${chalk5.dim(r.editor.name)}  ${chalk5.dim("not registered")}`);
+      }
+    }
+    console.log("");
+    if (registered.length > 0) {
+      logger.success(`MCP server registered in ${registered.length}/${results.length} editors`);
+    }
+    if (unregistered.length > 0) {
+      logger.dim(`Run ${chalk5.cyan("conjra init --ai <editor>")} to register for unconfigured editors.`);
+      logger.dim(`Or run ${chalk5.cyan("conjra init --ai all")} to configure all editors.`);
     }
   });
 }

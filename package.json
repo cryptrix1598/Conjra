@@ -1,6 +1,6 @@
 {
   "name": "conjra",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native MCP skill package that gives Claude Code ability to provision and configure real cloud infrastructure without leaving the editor",
   "main": "dist/mcp/server.js",
   "bin": {
