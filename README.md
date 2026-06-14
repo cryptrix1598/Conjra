@@ -13,9 +13,9 @@
 
 ## What is Conjra?
 
-Conjra gives Claude Code (and other AI editors) native MCP tools to provision real cloud infrastructure — Supabase, Railway, Vercel, Stripe, Clerk, and 13 more providers — without the developer ever leaving their editor.
+Conjra gives any of your **20 supported AI editors** native MCP tools to provision real cloud infrastructure — Supabase, Railway, Vercel, Stripe, Clerk, and 13 more providers — without ever leaving your editor.
 
-Install once, connect your providers, then just tell Claude:
+Install once, connect your providers, then just tell your AI:
 
 > "Use conjra to add Stripe to this project"
 > "Use conjra to create a Supabase project and run migrations"
@@ -36,12 +36,13 @@ npm install -g conjra
 ### 2. Initialize for your AI editor
 
 ```bash
-conjra init --ai claude    # For Claude Code
-conjra init --ai cursor    # For Cursor
-conjra init --ai windsurf  # For Windsurf
+conjra init --ai all          # Configure all 20 supported editors
+conjra init --ai claude       # Or pick a specific one
 ```
 
-This registers the Conjra MCP server so your editor can use Conjra tools.
+Supports 20 editors: Claude Code, Cursor, Windsurf, Antigravity CLI, Gemini CLI, Codex CLI, GitHub Copilot, Cline, Aider, Continue.dev, OpenCode, Amazon Q Developer, Kiro, Warp 2.0, Goose, Roo Code, Qoder, Trae, Droid, KiloCode.
+
+This registers the Conjra MCP server so your editor can use Conjra tools. Run `conjra init` with no flag to auto-detect installed editors.
 
 ### 3. Connect a provider
 
@@ -156,12 +157,12 @@ That's it. Now ask Claude to use Conjra tools:
 ## CLI Commands
 
 ```bash
-conjra init --ai <claude|cursor|windsurf>   # Register MCP server in your editor
-conjra add <provider>                         # Connect a cloud provider
-conjra remove <provider>                      # Disconnect a provider
-conjra status                                 # Show connected providers and status
-conjra --version                              # Show version
-conjra --help                                 # Show help
+conjra init [--ai <editor>|all]   # Register MCP server (omit for auto-detect)
+conjra add <provider>              # Connect a cloud provider
+conjra remove <provider>           # Disconnect a provider
+conjra status                      # Show status across all 20 editors
+conjra --version                   # Show version
+conjra --help                      # Show help
 ```
 
 ---
@@ -170,7 +171,7 @@ conjra --help                                 # Show help
 
 1. **`conjra init`** registers the MCP server in your AI editor's config file
 2. **`conjra add`** stores your API keys in an AES-256-GCM encrypted vault (`~/.conjra/vault/`)
-3. When Claude calls a Conjra tool, the MCP server:
+3. When your AI calls a Conjra tool, the MCP server:
    - Reads credentials from the encrypted vault
    - Makes the API call directly to the provider
    - Returns the result to Claude
