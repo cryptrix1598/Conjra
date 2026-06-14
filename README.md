@@ -5,7 +5,8 @@
 **Provision cloud infrastructure from your editor. Never touch a dashboard again.**
 
 [![npm version](https://img.shields.io/npm/v/conjra.svg)](https://www.npmjs.com/package/conjra)
-[![license](https://img.shields.io/npm/l/conjra.svg)](https://github.com/conjra/conjra/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/conjra.svg)](https://github.com/cryptrix1598/Conjra/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/badge/github-cryptrix1598/Conjra-181717?logo=github)](https://github.com/cryptrix1598/Conjra)
 
 </div>
 
@@ -201,6 +202,11 @@ No middleware. No third-party service. Your credentials never leave your machine
 8. Submit a pull request
 
 ---
+
+## Links
+
+- **GitHub**: [github.com/cryptrix1598/Conjra](https://github.com/cryptrix1598/Conjra)
+- **npm**: [npmjs.com/package/conjra](https://www.npmjs.com/package/conjra)
 
 ## License
 
