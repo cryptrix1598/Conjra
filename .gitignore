@@ -18,12 +18,7 @@ dist/
 # =============================================================================
 # NEXT.JS (site workspace)
 # =============================================================================
-# site/ is a submodule with its own .gitignore.
-# These root-level patterns serve as a safety net.
-site/.next/
-site/out/
-site/build/
-site/.vercel
+site/
 
 # =============================================================================
 # ENVIRONMENT FILES & SECRETS
