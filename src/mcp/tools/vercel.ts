@@ -17,6 +17,7 @@ export const vercelTools: MCPTool[] = [
       outputDirectory: z.string().optional().describe("Output directory for build artifacts (e.g. 'dist', '.next')"),
       rootDirectory: z.string().optional().describe("Root directory of the project within the repo"),
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       if (input.projectId) {
         return apiClient("vercel", {
@@ -55,6 +56,7 @@ export const vercelTools: MCPTool[] = [
       projectId: z.string().describe("Vercel project ID"),
       domain: z.string().describe("The domain name to add (e.g. 'example.com' or 'app.example.com')"),
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       return apiClient("vercel", {
         method: "POST",
@@ -74,6 +76,7 @@ export const vercelTools: MCPTool[] = [
       target: z.array(z.enum(["production", "preview", "development"])).optional().describe("Environments where this variable is available. Defaults to all three."),
       type: z.enum(["plain", "encrypted", "sensitive"]).optional().describe("Variable type. Defaults to 'plain'."),
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       return apiClient("vercel", {
         method: "POST",
@@ -94,6 +97,7 @@ export const vercelTools: MCPTool[] = [
     inputSchema: z.object({
       deploymentId: z.string().describe("Vercel deployment ID"),
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       return apiClient("vercel", {
         method: "GET",

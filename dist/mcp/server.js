@@ -244,6 +244,35 @@ function buildProviderHeaders(provider, baseHeaders) {
   if (provider === "stripe") {
   }
 }
+function objectToFormUrlencoded(obj, prefix = "") {
+  const parts = [];
+  if (Array.isArray(obj)) {
+    for (let i = 0; i < obj.length; i++) {
+      const k = `${prefix}[${i}]`;
+      const v = obj[i];
+      if (v !== null && typeof v === "object") {
+        parts.push(objectToFormUrlencoded(v, k));
+      } else if (v !== void 0) {
+        parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
+      }
+    }
+  } else if (obj !== null && typeof obj === "object") {
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const k = prefix ? `${prefix}[${key}]` : key;
+        const v = obj[key];
+        if (v !== null && typeof v === "object") {
+          parts.push(objectToFormUrlencoded(v, k));
+        } else if (v !== void 0) {
+          parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
+        }
+      }
+    }
+  } else if (obj !== void 0) {
+    parts.push(`${encodeURIComponent(prefix)}=${encodeURIComponent(String(obj))}`);
+  }
+  return parts.join("&");
+}
 async function executeRequest(provider, opts, credentials) {
   const config = getProviderConfig(provider);
   const url = new URL(`${config.baseUrl}${opts.path}`);
@@ -258,11 +287,18 @@ async function executeRequest(provider, opts, credentials) {
     "User-Agent": "conjra/1.0.0",
     ...opts.headers
   };
+  if (provider === "stripe" && (!opts.headers || !opts.headers["Content-Type"])) {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+  }
   headers[config.headerName] = buildAuthHeader(config, credentials);
   buildProviderHeaders(provider, headers);
   let body;
   if (opts.body && opts.method !== "GET") {
-    body = JSON.stringify(opts.body);
+    if (headers["Content-Type"] === "application/x-www-form-urlencoded") {
+      body = objectToFormUrlencoded(opts.body);
+    } else {
+      body = JSON.stringify(opts.body);
+    }
   }
   try {
     const response = await fetch(url.toString(), {
@@ -322,6 +358,7 @@ var supabaseTools = [
       region: z.string().optional().describe("AWS region for the project (e.g. us-east-1, eu-west-1). Defaults to us-east-1."),
       dbPassword: z.string().describe("Password for the PostgreSQL database (min 8 characters)")
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       const body = {
         name: input.name,
@@ -346,6 +383,7 @@ var supabaseTools = [
       sql: z.string().describe("The SQL migration to execute"),
       name: z.string().describe("A descriptive name for this migration")
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       return apiClient("supabase", {
         method: "POST",
@@ -363,6 +401,7 @@ var supabaseTools = [
     inputSchema: z.object({
       projectId: z.string().describe("The Supabase project reference ID")
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       const project = await apiClient("supabase", {
         method: "GET",
@@ -396,6 +435,7 @@ var supabaseTools = [
       public: z.boolean().optional().describe("Whether the bucket should be publicly accessible. Defaults to false."),
       fileSizeLimit: z.number().optional().describe("Maximum file size in bytes. Defaults to no limit.")
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       const body = {
         id: input.bucketId,
@@ -425,6 +465,7 @@ var stripeTools = [
       description: z2.string().optional().describe("The product's description, meant to be displayable to the customer"),
       metadata: z2.record(z2.string(), z2.string()).optional().describe("Set of key-value pairs for custom metadata")
     }),
+    provider: "stripe",
     execute: async (input, credentials) => {
       const body = { name: input.name };
       if (input.description) body.description = input.description;
@@ -449,6 +490,7 @@ var stripeTools = [
       }).optional().describe("Set this for subscription prices. Omit for one-time prices."),
       nickname: z2.string().optional().describe("A brief description of the price, visible in the dashboard")
     }),
+    provider: "stripe",
     execute: async (input, credentials) => {
       const body = {
         product: input.productId,
@@ -479,6 +521,7 @@ var stripeTools = [
       description: z2.string().optional().describe("Optional description for this webhook endpoint"),
       apiVersion: z2.string().optional().describe("Stripe API version for webhook calls (e.g. '2024-06-20')")
     }),
+    provider: "stripe",
     execute: async (input, credentials) => {
       const body = {
         url: input.url,
@@ -497,6 +540,7 @@ var stripeTools = [
     name: "get_stripe_account_info",
     description: "Retrieve information about the connected Stripe account. Returns account ID, business type, country, default currency, and other account details. Useful for verifying the connection works.",
     inputSchema: z2.object({}),
+    provider: "stripe",
     execute: async (_input, credentials) => {
       return apiClient("stripe", {
         method: "GET",
@@ -561,6 +605,7 @@ var railwayTools = [
       name: z3.string().describe("Name for the new Railway project"),
       teamId: z3.string().optional().describe("Railway team ID. If not provided, creates under your personal account.")
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       const variables = { name: input.name };
       if (input.teamId) variables.teamId = input.teamId;
@@ -581,6 +626,7 @@ var railwayTools = [
       serviceId: z3.string().describe("The Railway service ID to deploy"),
       environmentId: z3.string().describe("The Railway environment ID to deploy to")
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       return apiClient("railway", {
         method: "POST",
@@ -606,6 +652,7 @@ var railwayTools = [
         value: z3.string().describe("Environment variable value")
       })).describe("Array of environment variables to set")
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       return apiClient("railway", {
         method: "POST",
@@ -627,6 +674,7 @@ var railwayTools = [
     inputSchema: z3.object({
       deploymentId: z3.string().describe("The Railway deployment ID to check")
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       return apiClient("railway", {
         method: "POST",
@@ -656,6 +704,7 @@ var vercelTools = [
       outputDirectory: z4.string().optional().describe("Output directory for build artifacts (e.g. 'dist', '.next')"),
       rootDirectory: z4.string().optional().describe("Root directory of the project within the repo")
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       if (input.projectId) {
         return apiClient("vercel", {
@@ -688,6 +737,7 @@ var vercelTools = [
       projectId: z4.string().describe("Vercel project ID"),
       domain: z4.string().describe("The domain name to add (e.g. 'example.com' or 'app.example.com')")
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       return apiClient("vercel", {
         method: "POST",
@@ -706,6 +756,7 @@ var vercelTools = [
       target: z4.array(z4.enum(["production", "preview", "development"])).optional().describe("Environments where this variable is available. Defaults to all three."),
       type: z4.enum(["plain", "encrypted", "sensitive"]).optional().describe("Variable type. Defaults to 'plain'.")
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       return apiClient("vercel", {
         method: "POST",
@@ -725,6 +776,7 @@ var vercelTools = [
     inputSchema: z4.object({
       deploymentId: z4.string().describe("Vercel deployment ID")
     }),
+    provider: "vercel",
     execute: async (input, credentials) => {
       return apiClient("vercel", {
         method: "GET",
@@ -743,6 +795,7 @@ var clerkTools = [
     inputSchema: z5.object({
       name: z5.string().describe("Name for the Clerk application")
     }),
+    provider: "clerk",
     execute: async (input, credentials) => {
       return apiClient("clerk", {
         method: "POST",
@@ -757,6 +810,7 @@ var clerkTools = [
     inputSchema: z5.object({
       instanceId: z5.string().describe("Clerk instance ID")
     }),
+    provider: "clerk",
     execute: async (input, credentials) => {
       return apiClient("clerk", {
         method: "GET",
@@ -774,6 +828,7 @@ var clerkTools = [
       lifetime: z5.number().optional().describe("Token lifetime in seconds. Defaults to 60."),
       allowedClockSkew: z5.number().optional().describe("Allowed clock skew in seconds. Defaults to 5.")
     }),
+    provider: "clerk",
     execute: async (input, credentials) => {
       const body = {
         name: input.templateName
@@ -799,6 +854,7 @@ var resendTools = [
     inputSchema: z6.object({
       domain: z6.string().describe("The domain name to add for sending email (e.g. 'example.com')")
     }),
+    provider: "resend",
     execute: async (input, credentials) => {
       return apiClient("resend", {
         method: "POST",
@@ -815,6 +871,7 @@ var resendTools = [
       domainId: z6.string().optional().describe("Restrict this key to a specific domain ID. If omitted, the key has full access."),
       permission: z6.enum(["full_access", "sending_access"]).optional().describe("Permission level. Defaults to 'sending_access'.")
     }),
+    provider: "resend",
     execute: async (input, credentials) => {
       const body = { name: input.name };
       if (input.domainId) body.domain_id = input.domainId;
@@ -836,6 +893,7 @@ var resendTools = [
       html: z6.string().optional().describe("HTML body content"),
       text: z6.string().optional().describe("Plain text body content. Used if HTML is not provided.")
     }),
+    provider: "resend",
     execute: async (input, credentials) => {
       const body = {
         to: input.to,
@@ -864,6 +922,7 @@ var neonTools = [
       regionId: z7.string().optional().describe("AWS region ID (e.g. aws-us-east-1, aws-eu-west-1). Defaults to aws-us-east-1."),
       pgVersion: z7.number().optional().describe("PostgreSQL version (15 or 16). Defaults to 16.")
     }),
+    provider: "neon",
     execute: async (input, credentials) => {
       const body = { project: { name: input.name } };
       if (input.regionId) body.project.region_id = input.regionId;
@@ -883,6 +942,7 @@ var neonTools = [
       branchName: z7.string().describe("Name for the new branch (e.g. 'preview', 'staging')"),
       parentBranchId: z7.string().optional().describe("ID of the parent branch to branch from. Defaults to the primary branch.")
     }),
+    provider: "neon",
     execute: async (input, credentials) => {
       const body = {
         branch: { name: input.branchName }
@@ -904,6 +964,7 @@ var neonTools = [
       databaseName: z7.string().optional().describe("Database name. Defaults to 'neondb'."),
       roleName: z7.string().optional().describe("Role name. Defaults to the project owner.")
     }),
+    provider: "neon",
     execute: async (input, credentials) => {
       const query = {};
       if (input.branchId) query.branch_id = input.branchId;
@@ -930,6 +991,7 @@ var upstashTools = [
       tls: z8.boolean().optional().describe("Enable TLS. Defaults to true."),
       ephemeral: z8.boolean().optional().describe("Create an ephemeral instance (data lost on eviction). Defaults to false.")
     }),
+    provider: "upstash",
     execute: async (input, credentials) => {
       const body = { name: input.name };
       if (input.region) body.region = input.region;
@@ -950,6 +1012,7 @@ var upstashTools = [
       region: z8.string().optional().describe("Region for the cluster (e.g. us-east-1, eu-west-1). Defaults to us-east-1."),
       partitions: z8.number().optional().describe("Number of default partitions. Defaults to 1.")
     }),
+    provider: "upstash",
     execute: async (input, credentials) => {
       const body = { name: input.name };
       if (input.region) body.region = input.region;
@@ -968,6 +1031,7 @@ var upstashTools = [
       resourceId: z8.string().describe("The Upstash resource ID"),
       type: z8.enum(["redis", "kafka", "qstash"]).describe("The type of Upstash resource")
     }),
+    provider: "upstash",
     execute: async (input, credentials) => {
       const basePath = input.type === "redis" ? "/redis" : input.type === "kafka" ? "/kafka" : "/qstash";
       return apiClient("upstash", {
@@ -991,6 +1055,7 @@ var githubTools = [
       autoInit: z9.boolean().optional().describe("Initialize with a README. Defaults to true."),
       org: z9.string().optional().describe("Organization to create the repo under. If omitted, creates under your personal account.")
     }),
+    provider: "github",
     execute: async (input, credentials) => {
       const path = input.org ? `/orgs/${input.org}/repos` : "/user/repos";
       const body = {
@@ -1015,6 +1080,7 @@ var githubTools = [
       secretName: z9.string().describe("Name of the secret (e.g. 'DEPLOY_KEY', 'API_TOKEN')"),
       secretValue: z9.string().describe("The plaintext value of the secret. It will be encrypted automatically.")
     }),
+    provider: "github",
     execute: async (input, credentials) => {
       const pubkeyResponse = await apiClient("github", {
         method: "GET",
@@ -1054,6 +1120,7 @@ var githubTools = [
       secret: z9.string().optional().describe("Secret for webhook signature verification"),
       active: z9.boolean().optional().describe("Whether the webhook is active. Defaults to true.")
     }),
+    provider: "github",
     execute: async (input, credentials) => {
       const body = {
         name: "web",
@@ -1084,6 +1151,7 @@ var cloudflareTools = [
       domain: z10.string().describe("The domain name to add (e.g. 'example.com')"),
       type: z10.enum(["full", "partial"]).optional().describe("'full' for full setup (DNS + proxy), 'partial' for CNAME setup. Defaults to 'full'.")
     }),
+    provider: "cloudflare",
     execute: async (input, credentials) => {
       const body = {
         name: input.domain,
@@ -1105,6 +1173,7 @@ var cloudflareTools = [
       compatibilityDate: z10.string().optional().describe("Compatibility date (e.g. '2024-01-01'). Defaults to current date."),
       compatibilityFlags: z10.array(z10.string()).optional().describe("Compatibility flags to enable")
     }),
+    provider: "cloudflare",
     execute: async (input, credentials) => {
       const body = {
         name: input.workerName,
@@ -1112,9 +1181,10 @@ var cloudflareTools = [
         compatibility_date: input.compatibilityDate ?? (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
       };
       if (input.compatibilityFlags) body.compatibility_flags = input.compatibilityFlags;
+      const accountId = credentials.accountId ?? credentials.apiKey?.split("-")[0];
       return apiClient("cloudflare", {
         method: "PUT",
-        path: `/accounts/{account_id}/workers/scripts/${input.workerName}`,
+        path: `/accounts/${accountId}/workers/scripts/${input.workerName}`,
         body
       }, credentials);
     }
@@ -1125,6 +1195,7 @@ var cloudflareTools = [
     inputSchema: z10.object({
       identifier: z10.string().describe("Zone ID or domain name")
     }),
+    provider: "cloudflare",
     execute: async (input, credentials) => {
       return apiClient("cloudflare", {
         method: "GET",
@@ -1145,6 +1216,7 @@ var firebaseTools = [
       projectId: z11.string().describe("Globally unique project ID (lowercase, 6-30 chars, alphanumeric plus hyphens)"),
       displayName: z11.string().optional().describe("Human-readable project name. Defaults to projectId.")
     }),
+    provider: "firebase",
     execute: async (input, credentials) => {
       const body = {
         projectId: input.projectId
@@ -1163,6 +1235,7 @@ var firebaseTools = [
     inputSchema: z11.object({
       projectId: z11.string().describe("The Firebase/GCP project ID")
     }),
+    provider: "firebase",
     execute: async (input, credentials) => {
       return apiClient("firebase", {
         method: "GET",
@@ -1190,6 +1263,7 @@ var firebaseTools = [
       clientId: z11.string().optional().describe("OAuth client ID (required for Google, GitHub, Facebook, etc.)"),
       clientSecret: z11.string().optional().describe("OAuth client secret (required for Google, GitHub, Facebook, etc.)")
     }),
+    provider: "firebase",
     execute: async (input, credentials) => {
       const body = {};
       if (input.clientId) body.clientId = input.clientId;
@@ -1224,6 +1298,7 @@ var loopsTools = [
       mailingLists: z12.record(z12.string(), z12.boolean()).optional().describe("Mailing list IDs mapped to boolean (true = subscribed, false = unsubscribed)"),
       customProperties: z12.record(z12.string(), z12.string()).optional().describe("Custom properties for the contact (e.g. { plan: 'pro', signupDate: '2024-01-01' })")
     }),
+    provider: "loops",
     execute: async (input, credentials) => {
       const body = { email: input.email };
       if (input.firstName) body.firstName = input.firstName;
@@ -1250,6 +1325,7 @@ var loopsTools = [
       email: z12.string().describe("Recipient email address"),
       dataVariables: z12.record(z12.string(), z12.string()).optional().describe("Template variables to populate in the email (e.g. { companyName: 'Acme', userName: 'Alice' })")
     }),
+    provider: "loops",
     execute: async (input, credentials) => {
       const body = {
         transactionalId: input.transactionalId,
@@ -1267,6 +1343,7 @@ var loopsTools = [
     name: "get_loops_api_key",
     description: "Verify the Loops API key is valid by checking the API status. Returns the API key status and account info. Useful for testing the connection after adding Loops as a provider.",
     inputSchema: z12.object({}),
+    provider: "loops",
     execute: async (_input, credentials) => {
       return apiClient("loops", {
         method: "GET",
@@ -1288,6 +1365,7 @@ var twilioTools = [
       body: z13.string().describe("The text message content (max 160 chars for standard SMS, 1600 for long SMS)"),
       statusCallback: z13.string().optional().describe("URL where Twilio posts message status updates")
     }),
+    provider: "twilio",
     execute: async (input, credentials) => {
       const accountSid = credentials.accountSid;
       const body = new URLSearchParams({
@@ -1310,6 +1388,7 @@ var twilioTools = [
     inputSchema: z13.object({
       accountSid: z13.string().optional().describe("Twilio Account SID. Defaults to the one stored in keychain.")
     }),
+    provider: "twilio",
     execute: async (input, credentials) => {
       const sid = input.accountSid ?? credentials.accountSid;
       return apiClient("twilio", {
@@ -1328,6 +1407,7 @@ var twilioTools = [
       statusCallback: z13.string().optional().describe("URL for status callback webhook"),
       method: z13.enum(["GET", "POST"]).optional().describe("HTTP method for webhook calls. Defaults to POST.")
     }),
+    provider: "twilio",
     execute: async (input, credentials) => {
       const body = {};
       if (input.smsUrl) body.SmsUrl = input.smsUrl;
@@ -1356,6 +1436,7 @@ var openaiTools = [
       name: z14.string().describe("A descriptive name for this API key (e.g. 'production-app')"),
       scopes: z14.array(z14.string()).optional().describe("Permission scopes for the key. Defaults to all scopes.")
     }),
+    provider: "openai",
     execute: async (input, credentials) => {
       const body = { name: input.name };
       if (input.scopes) body.scopes = input.scopes;
@@ -1373,6 +1454,7 @@ var openaiTools = [
       startDate: z14.string().optional().describe("Start date for usage query (YYYY-MM-DD). Defaults to current billing period start."),
       endDate: z14.string().optional().describe("End date for usage query (YYYY-MM-DD). Defaults to today.")
     }),
+    provider: "openai",
     execute: async (input, credentials) => {
       const query = {};
       if (input.startDate) query.start_date = input.startDate;
@@ -1388,6 +1470,7 @@ var openaiTools = [
     name: "list_openai_models",
     description: "List all models available to your OpenAI account. Returns model IDs, creation dates, and ownership info. Use this to discover which models (GPT-4, GPT-3.5, DALL-E, etc.) you can access.",
     inputSchema: z14.object({}),
+    provider: "openai",
     execute: async (_input, credentials) => {
       return apiClient("openai", {
         method: "GET",
@@ -1408,6 +1491,7 @@ var anthropicTools = [
       workspaceId: z15.string().optional().describe("Workspace ID to scope the key to. If omitted, the key has org-wide access."),
       role: z15.enum(["admin", "developer", "viewer"]).optional().describe("Permission role for the key. Defaults to 'developer'.")
     }),
+    provider: "anthropic",
     execute: async (input, credentials) => {
       const body = { name: input.name };
       if (input.workspaceId) body.workspace_id = input.workspaceId;
@@ -1427,6 +1511,7 @@ var anthropicTools = [
       endDate: z15.string().optional().describe("End date for usage query (YYYY-MM-DD). Defaults to today."),
       groupBy: z15.enum(["model", "date", "workspace"]).optional().describe("How to group usage data. Defaults to 'model'.")
     }),
+    provider: "anthropic",
     execute: async (input, credentials) => {
       const query = {};
       if (input.startDate) query.start_date = input.startDate;
@@ -1454,6 +1539,7 @@ var replicateTools = [
       webhook: z16.string().optional().describe("URL to receive a POST when the prediction completes"),
       webhookEvents: z16.array(z16.enum(["start", "output", "logs", "completed"])).optional().describe("Which events trigger the webhook")
     }),
+    provider: "replicate",
     execute: async (input, credentials) => {
       const body = {
         model: input.model,
@@ -1477,6 +1563,7 @@ var replicateTools = [
     inputSchema: z16.object({
       predictionId: z16.string().describe("The prediction ID returned by run_replicate_model")
     }),
+    provider: "replicate",
     execute: async (input, credentials) => {
       return apiClient("replicate", {
         method: "GET",
@@ -1491,6 +1578,7 @@ var replicateTools = [
       query: z16.string().optional().describe("Search query to filter models (e.g. 'image generation', 'text to speech')"),
       limit: z16.number().optional().describe("Maximum number of results. Defaults to 20.")
     }),
+    provider: "replicate",
     execute: async (input, credentials) => {
       const query = {};
       if (input.query) query.search = input.query;
@@ -1515,6 +1603,7 @@ var flyioTools = [
       org: z17.string().optional().describe("Fly.io organization slug. Defaults to your personal org."),
       network: z17.string().optional().describe("Network to deploy on. Defaults to Fly's default network.")
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       const body = {
         app_name: input.name
@@ -1544,6 +1633,7 @@ var flyioTools = [
         externalPort: z17.number().optional().describe("External port. Defaults to same as internal port.")
       })).optional().describe("Network services to expose (ports)")
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       const body = {
         config: {
@@ -1576,6 +1666,7 @@ var flyioTools = [
       appName: z17.string().describe("The Fly.io app name"),
       secrets: z17.record(z17.string(), z17.string()).describe("Key-value pairs of secrets to set (e.g. { DATABASE_URL: 'postgres://...', API_KEY: 'sk_...' })")
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       return apiClient("flyio", {
         method: "POST",
@@ -1590,6 +1681,7 @@ var flyioTools = [
     inputSchema: z17.object({
       appName: z17.string().describe("The Fly.io app name")
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       return apiClient("flyio", {
         method: "GET",
@@ -1612,6 +1704,7 @@ var awsAmplifyTools = [
       buildSpec: z18.string().optional().describe("Amplify build specification YAML. If omitted, auto-detection is used."),
       environmentVariables: z18.record(z18.string(), z18.string()).optional().describe("Environment variables for the build")
     }),
+    provider: "awsamplify",
     execute: async (input, credentials) => {
       const body = {
         name: input.name,
@@ -1637,6 +1730,7 @@ var awsAmplifyTools = [
       enableAutoBuild: z18.boolean().optional().describe("Enable auto-build on push. Defaults to true."),
       environmentVariables: z18.record(z18.string(), z18.string()).optional().describe("Branch-specific environment variables")
     }),
+    provider: "awsamplify",
     execute: async (input, credentials) => {
       const body = {
         branchName: input.branchName,
@@ -1658,6 +1752,7 @@ var awsAmplifyTools = [
       appId: z18.string().describe("Amplify app ID"),
       branchName: z18.string().optional().describe("Branch name. Defaults to 'main'.")
     }),
+    provider: "awsamplify",
     execute: async (input, credentials) => {
       const branch = input.branchName ?? "main";
       return apiClient("awsamplify", {
@@ -1706,8 +1801,7 @@ async function startServer() {
       tool.description,
       schemaShape,
       async (input) => {
-        const parts = tool.name.split("_");
-        const providerName = parts[parts.length - 1];
+        const providerName = tool.provider;
         const credentials = await getKeychainCredentials(providerName);
         if (!credentials) {
           return {

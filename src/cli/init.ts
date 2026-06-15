@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import chalk from "chalk";
 import { logger } from "../utils/logger.js";
@@ -8,13 +9,20 @@ import { withSpinner } from "../utils/spinner.js";
 import { SUPPORTED_EDITORS, getEditorById } from "../shared/supported-editors.js";
 import type { SupportedEditor } from "../shared/supported-editors.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 interface MCPServerConfig {
   command: string;
   args: string[];
 }
 
 function getServerConfig(): MCPServerConfig {
-  const serverPath = join(process.cwd(), "dist", "mcp", "server.js");
+  const serverPath = join(__dirname, "..", "mcp", "server.js");
+  if (!existsSync(serverPath)) {
+    logger.warn(`MCP server script not found at target path: ${serverPath}`);
+    logger.warn("Please run `npm run build` to compile the server script.");
+  }
   return {
     command: "node",
     args: [serverPath],

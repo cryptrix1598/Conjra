@@ -14,6 +14,7 @@ export const awsAmplifyTools: MCPTool[] = [
       buildSpec: z.string().optional().describe("Amplify build specification YAML. If omitted, auto-detection is used."),
       environmentVariables: z.record(z.string(), z.string()).optional().describe("Environment variables for the build"),
     }),
+    provider: "awsamplify",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         name: input.name,
@@ -41,6 +42,7 @@ export const awsAmplifyTools: MCPTool[] = [
       enableAutoBuild: z.boolean().optional().describe("Enable auto-build on push. Defaults to true."),
       environmentVariables: z.record(z.string(), z.string()).optional().describe("Branch-specific environment variables"),
     }),
+    provider: "awsamplify",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         branchName: input.branchName,
@@ -64,6 +66,7 @@ export const awsAmplifyTools: MCPTool[] = [
       appId: z.string().describe("Amplify app ID"),
       branchName: z.string().optional().describe("Branch name. Defaults to 'main'."),
     }),
+    provider: "awsamplify",
     execute: async (input, credentials) => {
       const branch = input.branchName ?? "main";
       return apiClient("awsamplify", {

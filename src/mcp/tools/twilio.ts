@@ -13,6 +13,7 @@ export const twilioTools: MCPTool[] = [
       body: z.string().describe("The text message content (max 160 chars for standard SMS, 1600 for long SMS)"),
       statusCallback: z.string().optional().describe("URL where Twilio posts message status updates"),
     }),
+    provider: "twilio",
     execute: async (input, credentials) => {
       const accountSid = credentials.accountSid;
       const body = new URLSearchParams({
@@ -37,6 +38,7 @@ export const twilioTools: MCPTool[] = [
     inputSchema: z.object({
       accountSid: z.string().optional().describe("Twilio Account SID. Defaults to the one stored in keychain."),
     }),
+    provider: "twilio",
     execute: async (input, credentials) => {
       const sid = input.accountSid ?? credentials.accountSid;
       return apiClient("twilio", {
@@ -56,6 +58,7 @@ export const twilioTools: MCPTool[] = [
       statusCallback: z.string().optional().describe("URL for status callback webhook"),
       method: z.enum(["GET", "POST"]).optional().describe("HTTP method for webhook calls. Defaults to POST."),
     }),
+    provider: "twilio",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {};
       if (input.smsUrl) body.SmsUrl = input.smsUrl;

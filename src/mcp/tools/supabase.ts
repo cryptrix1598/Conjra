@@ -13,6 +13,7 @@ export const supabaseTools: MCPTool[] = [
       region: z.string().optional().describe("AWS region for the project (e.g. us-east-1, eu-west-1). Defaults to us-east-1."),
       dbPassword: z.string().describe("Password for the PostgreSQL database (min 8 characters)"),
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         name: input.name,
@@ -38,6 +39,7 @@ export const supabaseTools: MCPTool[] = [
       sql: z.string().describe("The SQL migration to execute"),
       name: z.string().describe("A descriptive name for this migration"),
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       return apiClient("supabase", {
         method: "POST",
@@ -56,6 +58,7 @@ export const supabaseTools: MCPTool[] = [
     inputSchema: z.object({
       projectId: z.string().describe("The Supabase project reference ID"),
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       const project = await apiClient<Record<string, unknown>>("supabase", {
         method: "GET",
@@ -93,6 +96,7 @@ export const supabaseTools: MCPTool[] = [
       public: z.boolean().optional().describe("Whether the bucket should be publicly accessible. Defaults to false."),
       fileSizeLimit: z.number().optional().describe("Maximum file size in bytes. Defaults to no limit."),
     }),
+    provider: "supabase",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         id: input.bucketId,

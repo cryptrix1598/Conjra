@@ -15,6 +15,7 @@ export const loopsTools: MCPTool[] = [
       mailingLists: z.record(z.string(), z.boolean()).optional().describe("Mailing list IDs mapped to boolean (true = subscribed, false = unsubscribed)"),
       customProperties: z.record(z.string(), z.string()).optional().describe("Custom properties for the contact (e.g. { plan: 'pro', signupDate: '2024-01-01' })"),
     }),
+    provider: "loops",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { email: input.email };
       if (input.firstName) body.firstName = input.firstName;
@@ -43,6 +44,7 @@ export const loopsTools: MCPTool[] = [
       email: z.string().describe("Recipient email address"),
       dataVariables: z.record(z.string(), z.string()).optional().describe("Template variables to populate in the email (e.g. { companyName: 'Acme', userName: 'Alice' })"),
     }),
+    provider: "loops",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         transactionalId: input.transactionalId,
@@ -62,6 +64,7 @@ export const loopsTools: MCPTool[] = [
     description:
       "Verify the Loops API key is valid by checking the API status. Returns the API key status and account info. Useful for testing the connection after adding Loops as a provider.",
     inputSchema: z.object({}),
+    provider: "loops",
     execute: async (_input, credentials) => {
       return apiClient("loops", {
         method: "GET",

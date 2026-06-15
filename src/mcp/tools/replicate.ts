@@ -14,6 +14,7 @@ export const replicateTools: MCPTool[] = [
       webhook: z.string().optional().describe("URL to receive a POST when the prediction completes"),
       webhookEvents: z.array(z.enum(["start", "output", "logs", "completed"])).optional().describe("Which events trigger the webhook"),
     }),
+    provider: "replicate",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         model: input.model,
@@ -39,6 +40,7 @@ export const replicateTools: MCPTool[] = [
     inputSchema: z.object({
       predictionId: z.string().describe("The prediction ID returned by run_replicate_model"),
     }),
+    provider: "replicate",
     execute: async (input, credentials) => {
       return apiClient("replicate", {
         method: "GET",
@@ -54,6 +56,7 @@ export const replicateTools: MCPTool[] = [
       query: z.string().optional().describe("Search query to filter models (e.g. 'image generation', 'text to speech')"),
       limit: z.number().optional().describe("Maximum number of results. Defaults to 20."),
     }),
+    provider: "replicate",
     execute: async (input, credentials) => {
       const query: Record<string, string> = {};
       if (input.query) query.search = input.query;

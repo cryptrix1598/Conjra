@@ -11,6 +11,7 @@ export const firebaseTools: MCPTool[] = [
       projectId: z.string().describe("Globally unique project ID (lowercase, 6-30 chars, alphanumeric plus hyphens)"),
       displayName: z.string().optional().describe("Human-readable project name. Defaults to projectId."),
     }),
+    provider: "firebase",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         projectId: input.projectId,
@@ -31,6 +32,7 @@ export const firebaseTools: MCPTool[] = [
     inputSchema: z.object({
       projectId: z.string().describe("The Firebase/GCP project ID"),
     }),
+    provider: "firebase",
     execute: async (input, credentials) => {
       return apiClient("firebase", {
         method: "GET",
@@ -59,6 +61,7 @@ export const firebaseTools: MCPTool[] = [
       clientId: z.string().optional().describe("OAuth client ID (required for Google, GitHub, Facebook, etc.)"),
       clientSecret: z.string().optional().describe("OAuth client secret (required for Google, GitHub, Facebook, etc.)"),
     }),
+    provider: "firebase",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {};
       if (input.clientId) body.clientId = input.clientId;

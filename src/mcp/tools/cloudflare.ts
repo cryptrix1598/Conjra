@@ -11,6 +11,7 @@ export const cloudflareTools: MCPTool[] = [
       domain: z.string().describe("The domain name to add (e.g. 'example.com')"),
       type: z.enum(["full", "partial"]).optional().describe("'full' for full setup (DNS + proxy), 'partial' for CNAME setup. Defaults to 'full'."),
     }),
+    provider: "cloudflare",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         name: input.domain,
@@ -34,6 +35,7 @@ export const cloudflareTools: MCPTool[] = [
       compatibilityDate: z.string().optional().describe("Compatibility date (e.g. '2024-01-01'). Defaults to current date."),
       compatibilityFlags: z.array(z.string()).optional().describe("Compatibility flags to enable"),
     }),
+    provider: "cloudflare",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         name: input.workerName,
@@ -42,9 +44,10 @@ export const cloudflareTools: MCPTool[] = [
       };
       if (input.compatibilityFlags) body.compatibility_flags = input.compatibilityFlags;
 
+      const accountId = credentials.accountId ?? credentials.apiKey?.split("-")[0];
       return apiClient("cloudflare", {
         method: "PUT",
-        path: `/accounts/{account_id}/workers/scripts/${input.workerName}`,
+        path: `/accounts/${accountId}/workers/scripts/${input.workerName}`,
         body,
       }, credentials);
     },
@@ -56,6 +59,7 @@ export const cloudflareTools: MCPTool[] = [
     inputSchema: z.object({
       identifier: z.string().describe("Zone ID or domain name"),
     }),
+    provider: "cloudflare",
     execute: async (input, credentials) => {
       return apiClient("cloudflare", {
         method: "GET",

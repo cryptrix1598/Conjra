@@ -11,6 +11,7 @@ export const openaiTools: MCPTool[] = [
       name: z.string().describe("A descriptive name for this API key (e.g. 'production-app')"),
       scopes: z.array(z.string()).optional().describe("Permission scopes for the key. Defaults to all scopes."),
     }),
+    provider: "openai",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { name: input.name };
       if (input.scopes) body.scopes = input.scopes;
@@ -30,6 +31,7 @@ export const openaiTools: MCPTool[] = [
       startDate: z.string().optional().describe("Start date for usage query (YYYY-MM-DD). Defaults to current billing period start."),
       endDate: z.string().optional().describe("End date for usage query (YYYY-MM-DD). Defaults to today."),
     }),
+    provider: "openai",
     execute: async (input, credentials) => {
       const query: Record<string, string> = {};
       if (input.startDate) query.start_date = input.startDate;
@@ -47,6 +49,7 @@ export const openaiTools: MCPTool[] = [
     description:
       "List all models available to your OpenAI account. Returns model IDs, creation dates, and ownership info. Use this to discover which models (GPT-4, GPT-3.5, DALL-E, etc.) you can access.",
     inputSchema: z.object({}),
+    provider: "openai",
     execute: async (_input, credentials) => {
       return apiClient("openai", {
         method: "GET",

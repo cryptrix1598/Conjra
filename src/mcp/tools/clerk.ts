@@ -10,6 +10,7 @@ export const clerkTools: MCPTool[] = [
     inputSchema: z.object({
       name: z.string().describe("Name for the Clerk application"),
     }),
+    provider: "clerk",
     execute: async (input, credentials) => {
       return apiClient("clerk", {
         method: "POST",
@@ -25,6 +26,7 @@ export const clerkTools: MCPTool[] = [
     inputSchema: z.object({
       instanceId: z.string().describe("Clerk instance ID"),
     }),
+    provider: "clerk",
     execute: async (input, credentials) => {
       return apiClient("clerk", {
         method: "GET",
@@ -43,6 +45,7 @@ export const clerkTools: MCPTool[] = [
       lifetime: z.number().optional().describe("Token lifetime in seconds. Defaults to 60."),
       allowedClockSkew: z.number().optional().describe("Allowed clock skew in seconds. Defaults to 5."),
     }),
+    provider: "clerk",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         name: input.templateName,

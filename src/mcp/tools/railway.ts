@@ -60,6 +60,7 @@ export const railwayTools: MCPTool[] = [
       name: z.string().describe("Name for the new Railway project"),
       teamId: z.string().optional().describe("Railway team ID. If not provided, creates under your personal account."),
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       const variables: Record<string, unknown> = { name: input.name };
       if (input.teamId) variables.teamId = input.teamId;
@@ -82,6 +83,7 @@ export const railwayTools: MCPTool[] = [
       serviceId: z.string().describe("The Railway service ID to deploy"),
       environmentId: z.string().describe("The Railway environment ID to deploy to"),
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       return apiClient("railway", {
         method: "POST",
@@ -108,6 +110,7 @@ export const railwayTools: MCPTool[] = [
         value: z.string().describe("Environment variable value"),
       })).describe("Array of environment variables to set"),
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       return apiClient("railway", {
         method: "POST",
@@ -130,6 +133,7 @@ export const railwayTools: MCPTool[] = [
     inputSchema: z.object({
       deploymentId: z.string().describe("The Railway deployment ID to check"),
     }),
+    provider: "railway",
     execute: async (input, credentials) => {
       return apiClient("railway", {
         method: "POST",

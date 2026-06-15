@@ -12,6 +12,7 @@ export const stripeTools: MCPTool[] = [
       description: z.string().optional().describe("The product's description, meant to be displayable to the customer"),
       metadata: z.record(z.string(), z.string()).optional().describe("Set of key-value pairs for custom metadata"),
     }),
+    provider: "stripe",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { name: input.name };
       if (input.description) body.description = input.description;
@@ -37,6 +38,7 @@ export const stripeTools: MCPTool[] = [
       }).optional().describe("Set this for subscription prices. Omit for one-time prices."),
       nickname: z.string().optional().describe("A brief description of the price, visible in the dashboard"),
     }),
+    provider: "stripe",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         product: input.productId,
@@ -68,6 +70,7 @@ export const stripeTools: MCPTool[] = [
       description: z.string().optional().describe("Optional description for this webhook endpoint"),
       apiVersion: z.string().optional().describe("Stripe API version for webhook calls (e.g. '2024-06-20')"),
     }),
+    provider: "stripe",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         url: input.url,
@@ -87,6 +90,7 @@ export const stripeTools: MCPTool[] = [
     description:
       "Retrieve information about the connected Stripe account. Returns account ID, business type, country, default currency, and other account details. Useful for verifying the connection works.",
     inputSchema: z.object({}),
+    provider: "stripe",
     execute: async (_input, credentials) => {
       return apiClient("stripe", {
         method: "GET",

@@ -24,8 +24,7 @@ async function startServer(): Promise<void> {
       tool.description,
       schemaShape,
       async (input: Record<string, unknown>) => {
-        const parts = tool.name.split("_");
-        const providerName = parts[parts.length - 1];
+        const providerName = tool.provider;
 
         const credentials = await getKeychainCredentials(providerName);
         if (!credentials) {

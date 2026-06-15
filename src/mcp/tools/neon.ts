@@ -12,6 +12,7 @@ export const neonTools: MCPTool[] = [
       regionId: z.string().optional().describe("AWS region ID (e.g. aws-us-east-1, aws-eu-west-1). Defaults to aws-us-east-1."),
       pgVersion: z.number().optional().describe("PostgreSQL version (15 or 16). Defaults to 16."),
     }),
+    provider: "neon",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { project: { name: input.name } };
       if (input.regionId) (body.project as Record<string, unknown>).region_id = input.regionId;
@@ -33,6 +34,7 @@ export const neonTools: MCPTool[] = [
       branchName: z.string().describe("Name for the new branch (e.g. 'preview', 'staging')"),
       parentBranchId: z.string().optional().describe("ID of the parent branch to branch from. Defaults to the primary branch."),
     }),
+    provider: "neon",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         branch: { name: input.branchName },
@@ -56,6 +58,7 @@ export const neonTools: MCPTool[] = [
       databaseName: z.string().optional().describe("Database name. Defaults to 'neondb'."),
       roleName: z.string().optional().describe("Role name. Defaults to the project owner."),
     }),
+    provider: "neon",
     execute: async (input, credentials) => {
       const query: Record<string, string> = {};
       if (input.branchId) query.branch_id = input.branchId;

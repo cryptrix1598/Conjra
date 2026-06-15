@@ -171,6 +171,36 @@ function buildProviderHeaders(provider: string, baseHeaders: Record<string, stri
   }
 }
 
+function objectToFormUrlencoded(obj: any, prefix = ""): string {
+  const parts: string[] = [];
+  if (Array.isArray(obj)) {
+    for (let i = 0; i < obj.length; i++) {
+      const k = `${prefix}[${i}]`;
+      const v = obj[i];
+      if (v !== null && typeof v === "object") {
+        parts.push(objectToFormUrlencoded(v, k));
+      } else if (v !== undefined) {
+        parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
+      }
+    }
+  } else if (obj !== null && typeof obj === "object") {
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const k = prefix ? `${prefix}[${key}]` : key;
+        const v = obj[key];
+        if (v !== null && typeof v === "object") {
+          parts.push(objectToFormUrlencoded(v, k));
+        } else if (v !== undefined) {
+          parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
+        }
+      }
+    }
+  } else if (obj !== undefined) {
+    parts.push(`${encodeURIComponent(prefix)}=${encodeURIComponent(String(obj))}`);
+  }
+  return parts.join("&");
+}
+
 async function executeRequest<T = unknown>(
   provider: string,
   opts: RequestOptions,
@@ -192,12 +222,20 @@ async function executeRequest<T = unknown>(
     ...opts.headers,
   };
 
+  if (provider === "stripe" && (!opts.headers || !opts.headers["Content-Type"])) {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+  }
+
   headers[config.headerName] = buildAuthHeader(config, credentials);
   buildProviderHeaders(provider, headers);
 
   let body: string | undefined;
   if (opts.body && opts.method !== "GET") {
-    body = JSON.stringify(opts.body);
+    if (headers["Content-Type"] === "application/x-www-form-urlencoded") {
+      body = objectToFormUrlencoded(opts.body);
+    } else {
+      body = JSON.stringify(opts.body);
+    }
   }
 
   try {

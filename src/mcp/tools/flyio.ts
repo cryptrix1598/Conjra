@@ -12,6 +12,7 @@ export const flyioTools: MCPTool[] = [
       org: z.string().optional().describe("Fly.io organization slug. Defaults to your personal org."),
       network: z.string().optional().describe("Network to deploy on. Defaults to Fly's default network."),
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         app_name: input.name,
@@ -43,6 +44,7 @@ export const flyioTools: MCPTool[] = [
         externalPort: z.number().optional().describe("External port. Defaults to same as internal port."),
       })).optional().describe("Network services to expose (ports)"),
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         config: {
@@ -77,6 +79,7 @@ export const flyioTools: MCPTool[] = [
       appName: z.string().describe("The Fly.io app name"),
       secrets: z.record(z.string(), z.string()).describe("Key-value pairs of secrets to set (e.g. { DATABASE_URL: 'postgres://...', API_KEY: 'sk_...' })"),
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       return apiClient("flyio", {
         method: "POST",
@@ -92,6 +95,7 @@ export const flyioTools: MCPTool[] = [
     inputSchema: z.object({
       appName: z.string().describe("The Fly.io app name"),
     }),
+    provider: "flyio",
     execute: async (input, credentials) => {
       return apiClient("flyio", {
         method: "GET",

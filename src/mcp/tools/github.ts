@@ -14,6 +14,7 @@ export const githubTools: MCPTool[] = [
       autoInit: z.boolean().optional().describe("Initialize with a README. Defaults to true."),
       org: z.string().optional().describe("Organization to create the repo under. If omitted, creates under your personal account."),
     }),
+    provider: "github",
     execute: async (input, credentials) => {
       const path = input.org ? `/orgs/${input.org}/repos` : "/user/repos";
       const body: Record<string, unknown> = {
@@ -40,6 +41,7 @@ export const githubTools: MCPTool[] = [
       secretName: z.string().describe("Name of the secret (e.g. 'DEPLOY_KEY', 'API_TOKEN')"),
       secretValue: z.string().describe("The plaintext value of the secret. It will be encrypted automatically."),
     }),
+    provider: "github",
     execute: async (input, credentials) => {
       // First get the repo's public key for encryption
       const pubkeyResponse = await apiClient<{ key: string; key_id: string }>("github", {
@@ -85,6 +87,7 @@ export const githubTools: MCPTool[] = [
       secret: z.string().optional().describe("Secret for webhook signature verification"),
       active: z.boolean().optional().describe("Whether the webhook is active. Defaults to true."),
     }),
+    provider: "github",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         name: "web",

@@ -13,6 +13,7 @@ export const upstashTools: MCPTool[] = [
       tls: z.boolean().optional().describe("Enable TLS. Defaults to true."),
       ephemeral: z.boolean().optional().describe("Create an ephemeral instance (data lost on eviction). Defaults to false."),
     }),
+    provider: "upstash",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { name: input.name };
       if (input.region) body.region = input.region;
@@ -35,6 +36,7 @@ export const upstashTools: MCPTool[] = [
       region: z.string().optional().describe("Region for the cluster (e.g. us-east-1, eu-west-1). Defaults to us-east-1."),
       partitions: z.number().optional().describe("Number of default partitions. Defaults to 1."),
     }),
+    provider: "upstash",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { name: input.name };
       if (input.region) body.region = input.region;
@@ -55,6 +57,7 @@ export const upstashTools: MCPTool[] = [
       resourceId: z.string().describe("The Upstash resource ID"),
       type: z.enum(["redis", "kafka", "qstash"]).describe("The type of Upstash resource"),
     }),
+    provider: "upstash",
     execute: async (input, credentials) => {
       const basePath = input.type === "redis" ? "/redis" : input.type === "kafka" ? "/kafka" : "/qstash";
       return apiClient("upstash", {

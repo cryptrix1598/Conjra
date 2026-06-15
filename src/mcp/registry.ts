@@ -22,6 +22,7 @@ export interface MCPTool<T extends ZodType = ZodType> {
   name: string;
   description: string;
   inputSchema: T;
+  provider: string;
   execute: (input: z.infer<T>, credentials: Record<string, string>) => Promise<unknown>;
 }
 

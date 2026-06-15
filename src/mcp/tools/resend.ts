@@ -10,6 +10,7 @@ export const resendTools: MCPTool[] = [
     inputSchema: z.object({
       domain: z.string().describe("The domain name to add for sending email (e.g. 'example.com')"),
     }),
+    provider: "resend",
     execute: async (input, credentials) => {
       return apiClient("resend", {
         method: "POST",
@@ -27,6 +28,7 @@ export const resendTools: MCPTool[] = [
       domainId: z.string().optional().describe("Restrict this key to a specific domain ID. If omitted, the key has full access."),
       permission: z.enum(["full_access", "sending_access"]).optional().describe("Permission level. Defaults to 'sending_access'."),
     }),
+    provider: "resend",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { name: input.name };
       if (input.domainId) body.domain_id = input.domainId;
@@ -50,6 +52,7 @@ export const resendTools: MCPTool[] = [
       html: z.string().optional().describe("HTML body content"),
       text: z.string().optional().describe("Plain text body content. Used if HTML is not provided."),
     }),
+    provider: "resend",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = {
         to: input.to,

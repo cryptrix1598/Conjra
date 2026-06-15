@@ -3,6 +3,8 @@ import { registerInitCommand } from "./init.js";
 import { registerAddCommand } from "./add.js";
 import { registerRemoveCommand } from "./remove.js";
 import { registerStatusCommand } from "./status.js";
+import { registerGetTokenCommand } from "./get-token.js";
+import { registerCheckCommand } from "./check.js";
 
 const program = new Command();
 
@@ -15,5 +17,7 @@ registerInitCommand(program);
 registerAddCommand(program);
 registerRemoveCommand(program);
 registerStatusCommand(program);
+registerGetTokenCommand(program);
+registerCheckCommand(program);
 
 program.parse();

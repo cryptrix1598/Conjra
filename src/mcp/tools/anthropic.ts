@@ -12,6 +12,7 @@ export const anthropicTools: MCPTool[] = [
       workspaceId: z.string().optional().describe("Workspace ID to scope the key to. If omitted, the key has org-wide access."),
       role: z.enum(["admin", "developer", "viewer"]).optional().describe("Permission role for the key. Defaults to 'developer'."),
     }),
+    provider: "anthropic",
     execute: async (input, credentials) => {
       const body: Record<string, unknown> = { name: input.name };
       if (input.workspaceId) body.workspace_id = input.workspaceId;
@@ -33,6 +34,7 @@ export const anthropicTools: MCPTool[] = [
       endDate: z.string().optional().describe("End date for usage query (YYYY-MM-DD). Defaults to today."),
       groupBy: z.enum(["model", "date", "workspace"]).optional().describe("How to group usage data. Defaults to 'model'."),
     }),
+    provider: "anthropic",
     execute: async (input, credentials) => {
       const query: Record<string, string> = {};
       if (input.startDate) query.start_date = input.startDate;
