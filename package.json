@@ -1,7 +1,7 @@
 {
   "name": "conjra",
-  "version": "1.0.4",
-  "description": "Native MCP skill package that gives Claude Code ability to provision and configure real cloud infrastructure without leaving the editor",
+  "version": "1.0.5",
+  "description": "MCP infrastructure tool for Claude Code, Cursor & Windsurf. Provision Supabase, Stripe, Railway, Vercel & 18+ cloud providers from your AI editor. npm MCP skill package.",
   "main": "dist/mcp/server.js",
   "bin": {
     "conjra": "dist/cli/index.js"
@@ -19,14 +19,24 @@
   "keywords": [
     "mcp",
     "claude",
+    "cursor",
+    "windsurf",
     "infrastructure",
     "supabase",
+    "stripe",
     "railway",
     "vercel",
-    "stripe",
-    "clerk",
+    "provisioning",
     "cloud",
-    "provisioning"
+    "mcp-server",
+    "mcp-tools",
+    "claude-code",
+    "ai-editor",
+    "clerk",
+    "neon",
+    "devops",
+    "deployment",
+    "npm-package"
   ],
   "author": "Conjra",
   "license": "MIT",

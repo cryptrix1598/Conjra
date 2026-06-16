@@ -2,11 +2,12 @@
 
 # conjra
 
-**Provision cloud infrastructure from your editor. Never touch a dashboard again.**
+**MCP Infrastructure Tool — Provision Cloud from Claude Code, Cursor &amp; 20 AI Editors**
 
 [![npm version](https://img.shields.io/npm/v/conjra.svg)](https://www.npmjs.com/package/conjra)
 [![license](https://img.shields.io/npm/l/conjra.svg)](https://github.com/cryptrix1598/Conjra/blob/main/LICENSE)
 [![GitHub](https://img.shields.io/badge/github-cryptrix1598/Conjra-181717?logo=github)](https://github.com/cryptrix1598/Conjra)
+[![Website](https://img.shields.io/badge/web-conjra.com-22C55E?logo=googlechrome)](https://conjra.com)
 
 </div>
 
@@ -14,15 +15,15 @@
 
 ## What is Conjra?
 
-Conjra gives any of your **20 supported AI editors** native MCP tools to provision real cloud infrastructure — Supabase, Railway, Vercel, Stripe, Clerk, and 13 more providers — without ever leaving your editor.
+Conjra is an **MCP infrastructure tool** and **npm MCP package** that gives Claude Code, Cursor, Windsurf, and 20+ AI editors native **cloud infrastructure MCP** tools to provision real infrastructure — Supabase, Railway, Vercel, Stripe, Clerk, and 18+ providers — without ever leaving your editor.
 
-Install once, connect your providers, then just tell your AI:
+It's the easiest way to set up **MCP tools for Cursor**, **Claude Code MCP infrastructure**, and **cloud provisioning from AI editors**. Install once, connect your providers, then just tell your AI:
 
 > "Use conjra to add Stripe to this project"
 > "Use conjra to create a Supabase project and run migrations"
 > "Use conjra to deploy this to Railway"
 
-Conjra handles credential storage via an encrypted local vault (one-time setup per provider). All provisioning calls go directly to provider REST APIs — no third-party middleware, no Composio, no Zapier.
+Conjra handles credential storage via an encrypted local vault (one-time setup per provider). All provisioning calls go directly to provider REST APIs — no third-party middleware, no Composio, no Zapier. Visit **[conjra.com](https://conjra.com)** to learn more.
 
 ---
 
