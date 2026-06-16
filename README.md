@@ -15,7 +15,7 @@
 
 ## What is Conjra?
 
-Conjra is an **MCP infrastructure tool** and **npm MCP package** that gives Claude Code, Cursor, Windsurf, and 20+ AI editors native **cloud infrastructure MCP** tools to provision real infrastructure — Supabase, Railway, Vercel, Stripe, Clerk, and 18+ providers — without ever leaving your editor.
+Conjra is an **MCP tool** and **MCP skill package** that gives Claude Code, Cursor, Windsurf, VS Code, and 20+ AI editors native **cloud infrastructure MCP** tools to provision real infrastructure — Supabase, Railway, Vercel, Stripe, Clerk, and 18+ providers — without ever leaving your editor.
 
 It's the easiest way to set up **MCP tools for Cursor**, **Claude Code MCP infrastructure**, and **cloud provisioning from AI editors**. Install once, connect your providers, then just tell your AI:
 
