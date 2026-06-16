@@ -1,6 +1,6 @@
 {
   "name": "conjra",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "MCP infrastructure tool for Claude Code, Cursor & Windsurf. Provision Supabase, Stripe, Railway, Vercel & 18+ cloud providers from your AI editor. npm MCP skill package.",
   "main": "dist/mcp/server.js",
   "bin": {
